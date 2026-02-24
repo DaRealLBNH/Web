@@ -1,666 +1,425 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TuffBot Dumper - Advanced Lua Deobfuscator</title>
-    <meta name="description" content="Professional Lua script dumper with anti-tamper bypass, webhook detection, and advanced deobfuscation capabilities.">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honey Hub Games — GAUNTLET</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#060810;--panel:#0d1117;--border:#1e2d40;--gold:#f0c040;--red:#ff3b3b;--cyan:#00e5ff;--green:#00ff88;--text:#c8d8e8;--muted:#4a6070;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);background-size:40px 40px;animation:gridshift 20s linear infinite;}
+  @keyframes gridshift{0%{background-position:0 0}100%{background-position:40px 40px}}
+  body::after{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,229,255,0.06) 0%,transparent 60%);}
+  #app{position:relative;z-index:1;}
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;}
 
-        :root {
-            --bg-dark: #0a0e27;
-            --bg-card: #1a1f3a;
-            --accent: #00d4ff;
-            --accent-glow: rgba(0, 212, 255, 0.3);
-            --text: #e0e6ed;
-            --text-dim: #8892a6;
-            --success: #00ff88;
-            --warning: #ffaa00;
-            --danger: #ff4444;
-        }
+  /* LOGIN */
+  #screen-login{text-align:center;padding:40px 20px;}
+  .logo{font-family:'Black Han Sans',sans-serif;font-size:clamp(32px,7vw,80px);letter-spacing:-2px;color:var(--gold);line-height:1;text-shadow:0 0 60px rgba(240,192,64,0.4),0 0 120px rgba(240,192,64,0.2);animation:logopulse 3s ease-in-out infinite;}
+  @keyframes logopulse{0%,100%{text-shadow:0 0 60px rgba(240,192,64,0.4),0 0 120px rgba(240,192,64,0.2);}50%{text-shadow:0 0 80px rgba(240,192,64,0.7),0 0 160px rgba(240,192,64,0.4);}}
+  .logo-sub{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:6px;margin-top:8px;}
+  .login-card{margin-top:50px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:44px 52px;max-width:440px;width:100%;box-shadow:0 0 60px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.04);}
+  .discord-badge{display:inline-flex;align-items:center;gap:8px;background:#5865F2;border-radius:8px;padding:8px 14px;margin-bottom:22px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#fff;letter-spacing:1px;}
+  .login-card h2{font-family:'Black Han Sans',sans-serif;font-size:26px;color:#fff;margin-bottom:10px;}
+  .login-card p{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:28px;}
+  .input-wrap{position:relative;margin-bottom:10px;}
+  .at-symbol{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-family:'Share Tech Mono',monospace;font-size:17px;color:#5865F2;pointer-events:none;}
+  .discord-input{width:100%;background:rgba(88,101,242,0.07);border:1.5px solid rgba(88,101,242,0.25);border-radius:10px;padding:14px 14px 14px 32px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:16px;outline:none;transition:all 0.2s;}
+  .discord-input:focus{border-color:#5865F2;box-shadow:0 0 0 3px rgba(88,101,242,0.15);}
+  .discord-input::placeholder{color:var(--muted);}
+  .input-hint{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:22px;}
+  .btn-enter{width:100%;background:linear-gradient(135deg,#5865F2,#4752C4);color:#fff;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:10px;padding:15px;cursor:pointer;transition:all 0.2s;}
+  .btn-enter:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(88,101,242,0.45);}
+  .error-msg{margin-top:10px;color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;display:none;text-align:center;}
+  .prize-teaser{margin-top:26px;padding:14px;background:linear-gradient(135deg,rgba(240,192,64,0.07),rgba(255,170,0,0.03));border:1px solid rgba(240,192,64,0.2);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:2px;text-align:center;}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+  /* CHALLENGE MAP */
+  #screen-challenge{padding:40px 20px;}
+  .challenge-header{text-align:center;margin-bottom:36px;}
+  .challenge-header h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(28px,5vw,52px);color:#fff;}
+  .challenge-header p{color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;margin-top:6px;}
+  .progress-wrap{max-width:680px;width:100%;margin:0 auto 34px;}
+  .progress-steps{display:flex;align-items:center;}
+  .prog-step{flex:1;text-align:center;position:relative;}
+  .prog-line{position:absolute;top:15px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0;transition:background 0.4s;}
+  .prog-line.done{background:var(--green);}
+  .prog-step:last-child .prog-line{display:none;}
+  .prog-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:12px;margin:0 auto;position:relative;z-index:1;transition:all 0.3s;}
+  .prog-dot.done{border-color:var(--green);background:rgba(0,255,136,0.1);color:var(--green);}
+  .prog-dot.active{border-color:var(--gold);background:rgba(240,192,64,0.1);color:var(--gold);animation:pulsedot 1.5s ease-in-out infinite;}
+  @keyframes pulsedot{0%,100%{box-shadow:0 0 0 0 rgba(240,192,64,0.3)}50%{box-shadow:0 0 0 8px rgba(240,192,64,0)}}
+  .prog-label{font-size:10px;color:var(--muted);margin-top:5px;font-family:'Share Tech Mono',monospace;}
+  .levels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:1100px;width:100%;margin:0 auto;}
+  .level-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:28px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;}
+  .level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--lc,var(--cyan));}
+  .level-card:hover:not(.locked):not(.completed){border-color:var(--lc,var(--cyan));transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.4);}
+  .level-card.locked{opacity:0.35;cursor:not-allowed;}
+  .level-card.completed{border-color:rgba(0,255,136,0.3);}
+  .level-card.active-level{border-color:var(--gold);box-shadow:0 0 28px rgba(240,192,64,0.1);}
+  .level-num{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--lc,var(--cyan));margin-bottom:8px;}
+  .level-name{font-family:'Black Han Sans',sans-serif;font-size:24px;color:#fff;margin-bottom:10px;}
+  .level-desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:16px;}
+  .level-tag{display:inline-block;border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 10px;border-radius:4px;letter-spacing:2px;}
+  .level-status{position:absolute;top:14px;right:14px;font-family:'Share Tech Mono',monospace;font-size:11px;}
+  .level-status.done{color:var(--green);}
+  .level-status.locked-txt{color:var(--muted);}
+  .level-status.current{color:var(--gold);}
 
-        /* Animated Background */
-        .background {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
-        }
+  /* PUZZLE */
+  #screen-puzzle{padding:40px 20px;}
+  .puzzle-container{max-width:680px;width:100%;margin:0 auto;}
+  .puzzle-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;cursor:pointer;margin-bottom:26px;letter-spacing:2px;transition:color 0.2s;background:none;border:none;}
+  .puzzle-back:hover{color:var(--cyan);}
+  .puzzle-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .puzzle-header{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .puzzle-level-badge{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--lc,var(--cyan));}
+  .puzzle-pts{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;}
+  .puzzle-body{padding:28px;}
+  .puzzle-body h2{font-family:'Black Han Sans',sans-serif;font-size:26px;color:#fff;margin-bottom:14px;}
+  .story{color:var(--text);line-height:1.8;font-size:15px;margin-bottom:24px;padding:18px 20px;background:rgba(0,229,255,0.03);border-left:3px solid rgba(0,229,255,0.25);border-radius:0 8px 8px 0;white-space:pre-line;}
+  .puzzle-question{font-size:17px;font-weight:600;color:#fff;margin-bottom:18px;}
+  .choices{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+  .choice-btn{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:13px 18px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;cursor:pointer;text-align:left;transition:all 0.15s;}
+  .choice-btn:hover:not(:disabled){border-color:var(--cyan);background:rgba(0,229,255,0.05);color:#fff;}
+  .choice-btn.correct{border-color:var(--green)!important;background:rgba(0,255,136,0.08)!important;color:var(--green)!important;}
+  .choice-btn.wrong{border-color:var(--red)!important;background:rgba(255,59,59,0.08)!important;color:var(--red)!important;}
+  .attempts-left{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px;letter-spacing:1px;}
+  .puzzle-input{width:100%;background:rgba(255,255,255,0.03);border:1.5px solid var(--border);border-radius:8px;padding:13px 16px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:16px;outline:none;transition:border-color 0.2s;margin-bottom:13px;}
+  .puzzle-input:focus{border-color:var(--cyan);}
+  .btn-submit{background:var(--cyan);color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;padding:13px 28px;cursor:pointer;transition:all 0.2s;}
+  .btn-submit:hover:not(:disabled){box-shadow:0 0 24px rgba(0,229,255,0.4);transform:translateY(-1px);}
+  .btn-submit:disabled{opacity:0.4;cursor:not-allowed;}
+  .feedback-msg{margin-top:13px;padding:12px 16px;border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;display:none;}
+  .feedback-msg.correct{background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.2);color:var(--green);}
+  .feedback-msg.wrong{background:rgba(255,59,59,0.07);border:1px solid rgba(255,59,59,0.2);color:var(--red);}
 
-        .background::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background-image: 
-                radial-gradient(circle at 20% 50%, var(--accent-glow) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
-            animation: moveBackground 20s ease infinite;
-        }
+  /* WINNER */
+  #screen-winner{text-align:center;padding:40px 20px;}
+  .winner-crown{font-size:80px;margin-bottom:20px;animation:crownbounce 0.8s ease-out;}
+  @keyframes crownbounce{0%{transform:scale(0) rotate(-20deg)}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+  .winner-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(40px,8vw,80px);color:var(--gold);text-shadow:0 0 60px rgba(240,192,64,0.5);margin-bottom:6px;}
+  .winner-sub{color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;margin-bottom:42px;}
+  .key-reveal{background:var(--panel);border:2px solid var(--gold);border-radius:14px;padding:36px;max-width:520px;margin:0 auto 26px;box-shadow:0 0 60px rgba(240,192,64,0.12);}
+  .key-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);margin-bottom:14px;}
+  .key-value{font-family:'Share Tech Mono',monospace;font-size:clamp(13px,2.5vw,20px);color:var(--gold);letter-spacing:3px;word-break:break-all;text-shadow:0 0 20px rgba(240,192,64,0.4);}
+  .key-copy-btn{margin-top:18px;background:rgba(240,192,64,0.1);border:1px solid rgba(240,192,64,0.3);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;padding:8px 20px;border-radius:6px;cursor:pointer;transition:all 0.2s;}
+  .key-copy-btn:hover{background:rgba(240,192,64,0.2);}
+  .key-note{font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;}
+  .winner-tag{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--muted);letter-spacing:2px;}
+  .winner-tag span{color:var(--gold);}
 
-        @keyframes moveBackground {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-50px, -50px); }
-        }
+  /* CLAIMED */
+  #screen-claimed{text-align:center;padding:40px 20px;}
+  .claimed-icon{font-size:70px;margin-bottom:20px;}
+  .claimed-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(32px,6vw,56px);color:var(--red);margin-bottom:10px;}
+  .claimed-sub{color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;margin-bottom:26px;}
+  .claimed-box{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px 32px;font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--muted);display:inline-block;margin-bottom:20px;}
+  .claimed-box span{color:#fff;}
 
-        /* Header */
-        header {
-            padding: 2rem 5%;
-            background: rgba(26, 31, 58, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+  /* FAILED */
+  #screen-failed{text-align:center;padding:40px 20px;}
+  .failed-icon{font-size:70px;margin-bottom:20px;}
+  .failed-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(32px,6vw,56px);color:var(--red);margin-bottom:10px;}
+  .failed-sub{color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;margin-bottom:26px;}
+  .btn-retry{background:linear-gradient(135deg,var(--red),#cc1a1a);color:#fff;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:10px;padding:15px 40px;cursor:pointer;transition:all 0.2s;margin-top:10px;}
+  .btn-retry:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,59,59,0.4);}
 
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--accent);
-            text-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text);
-            text-decoration: none;
-            transition: color 0.3s;
-            font-weight: 500;
-        }
-
-        .nav-links a:hover {
-            color: var(--accent);
-        }
-
-        .discord-btn {
-            background: #5865F2;
-            padding: 0.6rem 1.5rem;
-            border-radius: 8px;
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .discord-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(88, 101, 242, 0.4);
-        }
-
-        /* Hero Section */
-        .hero {
-            padding: 6rem 5%;
-            text-align: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: glow 2s ease-in-out infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { filter: drop-shadow(0 0 20px var(--accent-glow)); }
-            50% { filter: drop-shadow(0 0 30px var(--accent-glow)); }
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            color: var(--text-dim);
-            margin-bottom: 2rem;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: var(--bg-dark);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px var(--accent-glow);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--accent);
-            border: 2px solid var(--accent);
-        }
-
-        .btn-secondary:hover {
-            background: var(--accent);
-            color: var(--bg-dark);
-        }
-
-        /* Features Section */
-        .features {
-            padding: 4rem 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            color: var(--accent);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .feature-card {
-            background: var(--bg-card);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
-        }
-
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-card h3 {
-            color: var(--accent);
-            margin-bottom: 1rem;
-        }
-
-        .feature-card p {
-            color: var(--text-dim);
-        }
-
-        /* Stats Section */
-        .stats {
-            padding: 4rem 5%;
-            background: rgba(26, 31, 58, 0.5);
-            margin: 4rem 0;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .stat-item {
-            padding: 2rem;
-        }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: var(--text-dim);
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-        }
-
-        /* Code Example */
-        .code-section {
-            padding: 4rem 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .code-example {
-            background: var(--bg-card);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-        }
-
-        .code-header {
-            background: rgba(0, 212, 255, 0.1);
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .code-title {
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .copy-btn {
-            background: var(--accent);
-            color: var(--bg-dark);
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.3s;
-        }
-
-        .copy-btn:hover {
-            transform: scale(1.05);
-        }
-
-        pre {
-            margin: 0;
-            padding: 1.5rem;
-            overflow-x: auto;
-        }
-
-        code {
-            font-family: 'Consolas', 'Monaco', monospace;
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        /* Comparison Table */
-        .comparison {
-            padding: 4rem 5%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .comparison-table {
-            width: 100%;
-            background: var(--bg-card);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(0, 212, 255, 0.2);
-        }
-
-        .comparison-table th,
-        .comparison-table td {
-            padding: 1.5rem;
-            text-align: left;
-        }
-
-        .comparison-table th {
-            background: rgba(0, 212, 255, 0.1);
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .comparison-table tr:not(:last-child) {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .check {
-            color: var(--success);
-            font-size: 1.2rem;
-        }
-
-        .cross {
-            color: var(--danger);
-            font-size: 1.2rem;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--bg-card);
-            padding: 3rem 5%;
-            text-align: center;
-            border-top: 1px solid rgba(0, 212, 255, 0.2);
-            margin-top: 4rem;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-
-        .social-links a {
-            color: var(--text);
-            font-size: 1.5rem;
-            transition: color 0.3s, transform 0.3s;
-        }
-
-        .social-links a:hover {
-            color: var(--accent);
-            transform: scale(1.2);
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Scroll Animation */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s, transform 0.6s;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    </style>
+  #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:999;}
+  @media(max-width:600px){.login-card{padding:28px 20px;}.puzzle-body{padding:20px;}}
+</style>
 </head>
 <body>
-    <div class="background"></div>
+<canvas id="confetti-canvas"></canvas>
+<div id="app">
 
-    <header>
-        <nav>
-            <div class="logo">🤖 TuffBot Dumper</div>
-            <ul class="nav-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#usage">Usage</a></li>
-                <li><a href="#comparison">Compare</a></li>
-                <li><a href="#download">Download</a></li>
-            </ul>
-            <a href="https://discord.gg/tdSeHhQrx" class="discord-btn" target="_blank">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                </svg>
-                Join Discord
-            </a>
-        </nav>
-    </header>
+  <!-- LOGIN -->
+  <div id="screen-login" class="screen active">
+    <div class="logo">Honey Hub Games</div>
+    <div class="logo-sub">HONEY HUB GAMES · FIVE TRIALS · ONE CHAMPION</div>
+    <div class="login-card">
+      <div class="discord-badge">
+        <svg width="20" height="15" viewBox="0 0 71 55" fill="none"><path d="M60.1 4.9A58.8 58.8 0 0 0 45.6.4a.2.2 0 0 0-.2.1 41 41 0 0 0-1.8 3.7 54.3 54.3 0 0 0-16.3 0A37.8 37.8 0 0 0 25.5.5a.2.2 0 0 0-.2-.1A58.7 58.7 0 0 0 10.8 4.9a.2.2 0 0 0-.1.1C1.6 18.1-.9 31 .3 43.7a.2.2 0 0 0 .1.2 59.1 59.1 0 0 0 17.8 9 .2.2 0 0 0 .2-.1 42.2 42.2 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.9 38.9 0 0 1-5.6-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0C26.7 47.5 35.2 47.5 44 43.7a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 37 37 0 0 1-5.6 2.6.2.2 0 0 0-.1.3c1 2 2.2 4 3.6 5.9a.2.2 0 0 0 .2.1 58.9 58.9 0 0 0 17.9-9 .2.2 0 0 0 .1-.2c1.5-15-2.5-28-10.5-39.5a.2.2 0 0 0-.1-.3zM23.7 36.4c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2zm23.7 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2z" fill="white"/></svg>
+        Discord Username
+      </div>
+      <h2>Enter the Arena</h2>
+      <p>Type your Discord username to begin. Only the first to beat all 5 levels wins the prize key.</p>
+      <div class="input-wrap">
+        <span class="at-symbol">@</span>
+        <input class="discord-input" id="discord-input" placeholder="yourname" maxlength="32" onkeydown="if(event.key==='Enter')enterArena()" oninput="clearErr()">
+      </div>
+      <div class="input-hint">// no spaces · e.g. dragonslayer99</div>
+      <button class="btn-enter" onclick="enterArena()">ENTER THE GAUNTLET</button>
+      <div class="error-msg" id="error-msg"></div>
+      <div class="prize-teaser">🏆 &nbsp; HONEY DUEL PRIZE KEY AWAITS &nbsp; 🏆</div>
+    </div>
+  </div>
 
-    <section class="hero">
-        <h1>TuffBot Dumper</h1>
-        <p>Professional Lua deobfuscator with advanced anti-tamper bypass and webhook detection</p>
-        <div class="cta-buttons">
-            <a href="#download" class="btn btn-primary">Download Now</a>
-            <a href="#features" class="btn btn-secondary">Learn More</a>
-        </div>
-    </section>
+  <!-- CHALLENGE MAP -->
+  <div id="screen-challenge" class="screen">
+    <div class="challenge-header">
+      <h1>HONEY HUB GAMES</h1>
+      <p>// COMPLETE ALL 5 TRIALS IN ORDER · @<span id="header-user"></span></p>
+    </div>
+    <div class="progress-wrap"><div class="progress-steps" id="prog-steps"></div></div>
+    <div class="levels-grid" id="levels-grid"></div>
+  </div>
 
-    <section class="stats">
-        <div class="stats-grid">
-            <div class="stat-item fade-in">
-                <div class="stat-number">80%+</div>
-                <div class="stat-label">Success Rate</div>
-            </div>
-            <div class="stat-item fade-in">
-                <div class="stat-number">20+</div>
-                <div class="stat-label">Obfuscators Supported</div>
-            </div>
-            <div class="stat-item fade-in">
-                <div class="stat-number">100%</div>
-                <div class="stat-label">Webhook Detection</div>
-            </div>
-            <div class="stat-item fade-in">
-                <div class="stat-number">24/7</div>
-                <div class="stat-label">Support Available</div>
-            </div>
-        </div>
-    </section>
+  <!-- PUZZLE -->
+  <div id="screen-puzzle" class="screen">
+    <div class="puzzle-container">
+      <button class="puzzle-back" onclick="showScreen('challenge')">← BACK TO MAP</button>
+      <div class="puzzle-card" id="puzzle-card"></div>
+    </div>
+  </div>
 
-    <section id="features" class="features">
-        <h2 class="section-title">Powerful Features</h2>
-        <div class="features-grid">
-            <div class="feature-card fade-in">
-                <div class="feature-icon">🛡️</div>
-                <h3>Anti-Tamper Bypass</h3>
-                <p>Automatically detects and bypasses heartbeat-based, timing, and integrity checks</p>
-            </div>
-            <div class="feature-card fade-in">
-                <div class="feature-icon">🔗</div>
-                <h3>Webhook Detection</h3>
-                <p>Extracts Discord webhooks from HttpPost, request(), and hooked functions</p>
-            </div>
-            <div class="feature-card fade-in">
-                <div class="feature-icon">🔓</div>
-                <h3>String Deobfuscation</h3>
-                <p>Decodes escape sequences, detects Base64, and extracts URLs from obfuscated strings</p>
-            </div>
-            <div class="feature-card fade-in">
-                <div class="feature-icon">🎯</div>
-                <h3>Hook System</h3>
-                <p>Intercepts hookfunction, hookmetamethod, and newcclosure for complete visibility</p>
-            </div>
-            <div class="feature-card fade-in">
-                <div class="feature-icon">⚡</div>
-                <h3>Fast Execution</h3>
-                <p>Optimized VM with configurable timeout and operation limits</p>
-            </div>
-            <div class="feature-card fade-in">
-                <div class="feature-icon">📊</div>
-                <h3>Detailed Reports</h3>
-                <p>Get comprehensive statistics on URLs, webhooks, and anti-tamper detections</p>
-            </div>
-        </div>
-    </section>
+  <!-- WINNER -->
+  <div id="screen-winner" class="screen">
+    <div class="winner-crown">👑</div>
+    <div class="winner-title">CHAMPION</div>
+    <div class="winner-sub">// HONEY HUB GAMES · GAUNTLET COMPLETE — YOU ARE THE FIRST</div>
+    <div class="key-reveal">
+      <div class="key-label">🔑 &nbsp; HONEY DUEL PRIZE KEY</div>
+      <div class="key-value">l6tzq93yauv55s8oz1t1ccbn</div>
+      <button class="key-copy-btn" onclick="copyKey()">[ COPY KEY ]</button>
+      <div class="key-note">Redeem on Honey Duel. Screenshot or copy this now.</div>
+    </div>
+    <div class="winner-tag">CONGRATULATIONS, <span id="winner-name">CHAMPION</span></div>
+  </div>
 
-    <section id="usage" class="code-section">
-        <h2 class="section-title">Quick Start</h2>
-        <div class="code-example fade-in">
-            <div class="code-header">
-                <span class="code-title">Usage Example</span>
-                <button class="copy-btn" onclick="copyCode()">Copy Code</button>
-            </div>
-            <pre><code id="codeBlock">-- Basic usage
-lua dumper.lua obfuscated_script.lua
+  <!-- CLAIMED -->
+  <div id="screen-claimed" class="screen">
+    <div class="claimed-icon">🔒</div>
+    <div class="claimed-title">KEY CLAIMED</div>
+    <div class="claimed-sub">// HONEY HUB GAMES · ANOTHER CHAMPION HAS ALREADY WON</div>
+    <div class="claimed-box">Claimed by: <span id="claimed-by">—</span></div>
+    <p style="color:var(--muted);max-width:360px;line-height:1.7;font-size:15px;text-align:center;">The prize key has already been taken. This competition has concluded.</p>
+  </div>
 
--- With custom output file
-lua dumper.lua obfuscated_script.lua output.lua
+  <!-- FAILED (ran out of attempts) -->
+  <div id="screen-failed" class="screen">
+    <div class="failed-icon">💀</div>
+    <div class="failed-title">ELIMINATED</div>
+    <div class="failed-sub">// YOU HAVE EXHAUSTED ALL ATTEMPTS</div>
+    <p style="color:var(--muted);max-width:380px;line-height:1.7;font-size:15px;text-align:center;margin-bottom:28px;">You've used all your attempts on this trial. The answer remains a secret. Return to the map and try again from a fresh run.</p>
+    <button class="btn-retry" onclick="showScreen('challenge')">← RETURN TO MAP</button>
+  </div>
 
--- Enable verbose mode
-lua dumper.lua obfuscated_script.lua --verbose
+</div>
 
--- The dumper will automatically:
--- ✅ Bypass anti-tamper checks
--- ✅ Extract Discord webhooks
--- ✅ Deobfuscate strings
--- ✅ Generate readable output</code></pre>
-        </div>
-    </section>
+<script>
+const PRIZE_KEY    = 'l6tzq93yauv55s8oz1t1ccbn';
+const STORAGE_KEY  = 'gauntlet:winner';
 
-    <section id="comparison" class="comparison">
-        <h2 class="section-title">Why TuffBot Dumper?</h2>
-        <table class="comparison-table fade-in">
-            <thead>
-                <tr>
-                    <th>Feature</th>
-                    <th>TuffBot Dumper</th>
-                    <th>Other Dumpers</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Anti-Tamper Detection</td>
-                    <td><span class="check">✓</span></td>
-                    <td><span class="cross">✗</span></td>
-                </tr>
-                <tr>
-                    <td>Webhook Extraction</td>
-                    <td><span class="check">✓</span></td>
-                    <td><span class="cross">✗</span></td>
-                </tr>
-                <tr>
-                    <td>String Deobfuscation</td>
-                    <td><span class="check">✓</span></td>
-                    <td><span class="check">✓</span></td>
-                </tr>
-                <tr>
-                    <td>Hook Interception</td>
-                    <td><span class="check">✓</span></td>
-                    <td><span class="cross">✗</span></td>
-                </tr>
-                <tr>
-                    <td>Error Recovery</td>
-                    <td><span class="check">✓</span></td>
-                    <td><span class="cross">✗</span></td>
-                </tr>
-                <tr>
-                    <td>Standalone (No dependencies)</td>
-                    <td><span class="check">✓</span></td>
-                    <td><span class="cross">✗</span></td>
-                </tr>
-                <tr>
-                    <td>Detailed Reporting</td>
-                    <td><span class="check">✓</span></td>
-                    <td><span class="cross">✗</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+const st = { user:'', completed:[], attempts:{}, currentLevel:null };
 
-    <section id="download" class="hero">
-        <h2 class="section-title">Get Started Today</h2>
-        <p>Join hundreds of developers using TuffBot Dumper</p>
-        <div class="cta-buttons">
-            <a href="https://discord.gg/tdSeHhQrx" class="btn btn-primary">Download via Discord</a>
-            <a href="https://discord.gg/tdSeHhQrx" class="btn btn-secondary">View Documentation</a>
-        </div>
-    </section>
+async function checkIfClaimed() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY, true);
+    if (result && result.value) {
+      const data = JSON.parse(result.value);
+      document.getElementById('claimed-by').textContent = '@' + (data.winner || 'unknown');
+      showScreen('claimed');
+      return true;
+    }
+  } catch(e) { /* not claimed yet */ }
+  return false;
+}
 
-    <footer>
-        <div class="footer-content">
-            <div class="social-links">
-                <a href="https://discord.gg/tdSeHhQrx" target="_blank" title="Discord">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                    </svg>
-                </a>
-            </div>
-            <p style="color: var(--text-dim); margin-top: 1rem;">
-                © 2025 TuffBot Dumper. All rights reserved.
-            </p>
-            <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 0.5rem;">
-                Created for educational and security research purposes only.
-            </p>
-        </div>
-    </footer>
+const LEVELS = [
+  {id:1,color:'#00e5ff',name:'THE CIPHER',tag:'CRYPTOGRAPHY',pts:100,
+   desc:'Decode the encrypted binary message carved into the ancient gate.',
+   type:'choice',
+   story:'You stand before the Gates of Obsidian. A stone tablet reads:\n\n01000111 01000001 01010100 01000101\n\n"Only those who can read the language of machines may pass."',
+   question:'What word do those binary digits spell?',
+   choices:['GATE','PASS','CODE','LOCK'],answer:'GATE',maxTries:3},
+  {id:2,color:'#a78bfa',name:'THE RIDDLE',tag:'LOGIC',pts:200,
+   desc:'Solve the ancient riddle spoken by the Guardian of the Second Gate.',
+   type:'choice',
+   story:'"I have cities, but no houses live there.\nI have mountains, but no trees grow.\nI have water, but no fish swim.\nI have roads, but no cars drive.\nWhat am I?"',
+   question:'What is the answer to the riddle?',
+   choices:['A Dream','A Map','A Mirror','A Painting'],answer:'A Map',maxTries:3},
+  {id:3,color:'#f59e0b',name:'THE SEQUENCE',tag:'MATHEMATICS',pts:300,
+   desc:'Discover the pattern concealed within the numerical matrix.',
+   type:'input',
+   story:'The Third Chamber walls are covered in numbers. A voice echoes:\n\n"Find what completes the sequence and the door will open."\n\n1, 1, 2, 3, 5, 8, 13, 21, ?',
+   question:'What is the next number?',answer:'34',maxTries:3},
+  {id:4,color:'#f87171',name:'THE SHADOW',tag:'WORDPLAY',pts:400,
+   desc:'Unmask the word hiding in plain sight within the echoing verse.',
+   type:'input',
+   story:'A poem is etched into the wall:\n\n"I speak without a mouth and hear without ears.\nI have no body, but I come alive with wind.\nWhat am I?"',
+   question:'One word, lowercase:',answer:'echo',maxTries:3},
+  {id:5,color:'#f0c040',name:'THE FINAL KEY',tag:'MASTER TRIAL',pts:500,
+   desc:'The ultimate challenge. Prove your mastery and claim the prize.',
+   type:'input',
+   story:'The final door looms before you. The inscription reads:\n\n"I am always in front of you but cannot be seen.\nI am consumed without being eaten.\nI can be wasted, saved, and lost —\nbut never created or destroyed.\nWhat am I?"',
+   question:'One word, lowercase:',answer:'time',maxTries:3}
+];
 
-    <script>
-        // Copy code functionality
-        function copyCode() {
-            const code = document.getElementById('codeBlock').innerText;
-            navigator.clipboard.writeText(code).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                btn.textContent = 'Copied!';
-                setTimeout(() => {
-                    btn.textContent = 'Copy Code';
-                }, 2000);
-            });
-        }
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
 
-        // Scroll animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+async function enterArena(){
+  const raw=document.getElementById('discord-input').value.trim();
+  if(!raw||raw.length<2||/\s/.test(raw)){showErr('⚠ Enter a valid username with no spaces');return;}
+  st.user=raw;
+  document.getElementById('header-user').textContent=raw;
+  document.getElementById('winner-name').textContent='@'+raw;
+  const btn=document.querySelector('.btn-enter');
+  btn.textContent='CHECKING...';btn.disabled=true;
+  const claimed=await checkIfClaimed();
+  btn.textContent='ENTER THE GAUNTLET';btn.disabled=false;
+  if(claimed)return;
+  renderProgress();renderLevels();
+  showScreen('challenge');
+}
+function showErr(m){const e=document.getElementById('error-msg');e.textContent=m;e.style.display='block';}
+function clearErr(){document.getElementById('error-msg').style.display='none';}
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
+function renderProgress(){
+  document.getElementById('prog-steps').innerHTML=LEVELS.map((l,i)=>{
+    const done=st.completed.includes(l.id);
+    const active=!done&&(i===0||st.completed.includes(LEVELS[i-1].id));
+    return '<div class="prog-step"><div class="prog-line'+(done?' done':'')+'"></div>'
+      +'<div class="prog-dot'+(done?' done':active?' active':'')+'>'+(done?'✓':l.id)+'</div>'
+      +'<div class="prog-label">LVL '+l.id+'</div></div>';
+  }).join('');
+}
 
-        document.querySelectorAll('.fade-in').forEach(el => {
-            observer.observe(el);
-        });
+function renderLevels(){
+  document.getElementById('levels-grid').innerHTML=LEVELS.map((l,i)=>{
+    const done=st.completed.includes(l.id);
+    const unlocked=i===0||st.completed.includes(LEVELS[i-1].id);
+    const cls=done?'completed':!unlocked?'locked':i===st.completed.length?'active-level':'';
+    const stat=done?'<span class="level-status done">✓ CLEARED</span>'
+      :!unlocked?'<span class="level-status locked-txt">🔒 LOCKED</span>'
+      :'<span class="level-status current">▶ ENTER</span>';
+    return '<div class="level-card '+cls+'" style="--lc:'+l.color+'" onclick="'+(unlocked&&!done?'openPuzzle('+l.id+')':'')+'">'
+      +stat+'<div class="level-num">LEVEL '+l.id+'</div>'
+      +'<div class="level-name">'+l.name+'</div>'
+      +'<div class="level-desc">'+l.desc+'</div>'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;">'
+      +'<span class="level-tag">'+l.tag+'</span>'
+      +'<span style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--muted)">'+l.pts+' PTS</span></div></div>';
+  }).join('');
+}
 
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-    </script>
+function openPuzzle(id){
+  const l=LEVELS.find(x=>x.id===id);if(!l)return;
+  st.currentLevel=id;
+  if(!st.attempts[id])st.attempts[id]=l.maxTries;
+  let inp='';
+  if(l.type==='choice'){
+    inp='<div class="attempts-left" id="att">// '+st.attempts[id]+' attempts remaining</div>'
+      +'<div class="choices">'+l.choices.map(c=>'<button class="choice-btn" onclick="pickChoice(this,\''+c+'\')">'+c+'</button>').join('')+'</div>';
+  }else{
+    inp='<div class="attempts-left" id="att">// '+st.attempts[id]+' attempts remaining</div>'
+      +'<input class="puzzle-input" id="p-input" placeholder="Your answer..." onkeydown="if(event.key===\'Enter\')submitText()">'
+      +'<button class="btn-submit" id="p-btn" onclick="submitText()">SUBMIT ANSWER</button>';
+  }
+  const card=document.getElementById('puzzle-card');
+  card.style.setProperty('--lc',l.color);
+  card.innerHTML='<div class="puzzle-header"><div class="puzzle-level-badge">LEVEL '+l.id+' — '+l.name+'</div><div class="puzzle-pts">'+l.pts+' PTS</div></div>'
+    +'<div class="puzzle-body"><h2>'+l.tag+'</h2><div class="story">'+l.story+'</div>'
+    +'<div class="puzzle-question">'+l.question+'</div>'+inp+'<div class="feedback-msg" id="fb"></div></div>';
+  showScreen('puzzle');
+}
+
+function pickChoice(btn, val){
+  const l=LEVELS.find(x=>x.id===st.currentLevel);
+  st.attempts[l.id]--;
+  const left=st.attempts[l.id];
+
+  if(val===l.answer){
+    // Correct — lock all buttons and advance
+    document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+    btn.classList.add('correct');
+    setFb(true,'✓ CORRECT! Advancing...');
+    setTimeout(()=>levelDone(l.id),1300);
+  } else {
+    // Wrong — just mark this button red temporarily, no answer revealed
+    btn.disabled=true;
+    btn.classList.add('wrong');
+    if(left<=0){
+      // Out of attempts — go to failed screen
+      document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+      setFb(false,'✗ No attempts remaining. Trial failed.');
+      setTimeout(()=>showScreen('failed'),1600);
+    } else {
+      setFb(false,'✗ Incorrect. '+left+' attempt'+(left===1?'':'s')+' remaining. Try again.');
+      setTimeout(()=>{
+        btn.classList.remove('wrong');
+        btn.disabled=false;
+        hideFb();
+        document.getElementById('att').textContent='// '+left+' attempts remaining';
+      },1200);
+    }
+  }
+}
+
+function submitText(){
+  const l=LEVELS.find(x=>x.id===st.currentLevel);
+  const inp=document.getElementById('p-input');
+  const val=inp.value.trim().toLowerCase();if(!val)return;
+  if(val===l.answer.toLowerCase()){
+    inp.disabled=true;document.getElementById('p-btn').disabled=true;
+    setFb(true,'✓ CORRECT! Well done.');
+    setTimeout(()=>levelDone(l.id),1300);
+  }else{
+    st.attempts[l.id]--;const left=st.attempts[l.id];
+    if(left<=0){
+      inp.disabled=true;document.getElementById('p-btn').disabled=true;
+      setFb(false,'✗ No attempts remaining. Trial failed.');
+      document.getElementById('att').textContent='// 0 attempts remaining';
+      setTimeout(()=>showScreen('failed'),1600);
+    }else{
+      setFb(false,'✗ Incorrect. '+left+' attempt'+(left===1?'':'s')+' remaining.');
+      document.getElementById('att').textContent='// '+left+' attempts remaining';
+      inp.value='';inp.focus();
+    }
+  }
+}
+
+function setFb(ok,msg){const el=document.getElementById('fb');el.textContent=msg;el.className='feedback-msg '+(ok?'correct':'wrong');el.style.display='block';}
+function hideFb(){const el=document.getElementById('fb');if(el)el.style.display='none';}
+
+function levelDone(id){
+  if(!st.completed.includes(id))st.completed.push(id);
+  if(st.completed.length>=LEVELS.length){claimKey();return;}
+  renderProgress();renderLevels();showScreen('challenge');
+}
+
+async function claimKey(){
+  // Double-check no one won while this player was solving
+  const alreadyClaimed=await checkIfClaimed();
+  if(alreadyClaimed)return;
+  // Save winner to shared storage (visible to all users)
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify({winner:st.user, ts:Date.now()}), true);
+  } catch(e) { console.error('Storage write failed',e); }
+  launchConfetti();
+  showScreen('winner');
+}
+
+function copyKey(){
+  navigator.clipboard.writeText(PRIZE_KEY).then(()=>{
+    const b=document.querySelector('.key-copy-btn');
+    b.textContent='[ COPIED ✓ ]';setTimeout(()=>b.textContent='[ COPY KEY ]',2000);
+  });
+}
+
+function launchConfetti(){
+  const c=document.getElementById('confetti-canvas');const ctx=c.getContext('2d');
+  c.width=innerWidth;c.height=innerHeight;
+  const cols=['#f0c040','#00e5ff','#ff3b3b','#00ff88','#a78bfa','#fff'];
+  const pts=Array.from({length:200},()=>({x:Math.random()*c.width,y:Math.random()*-c.height,w:7+Math.random()*8,h:4+Math.random()*4,rot:Math.random()*360,dr:(Math.random()-.5)*7,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,col:cols[Math.floor(Math.random()*cols.length)],a:1}));
+  let f=0;
+  (function draw(){ctx.clearRect(0,0,c.width,c.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.dr;if(f>160)p.a=Math.max(0,p.a-.008);ctx.save();ctx.globalAlpha=p.a;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.col;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(f<350)requestAnimationFrame(draw);else ctx.clearRect(0,0,c.width,c.height);})();
+}
+</script>
 </body>
 </html>
