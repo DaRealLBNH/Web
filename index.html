@@ -177,14 +177,13 @@
 
   <!-- WINNER -->
   <div id="screen-winner" class="screen">
-    <div class="winner-crown">👑</div>
-    <div class="winner-title">CHAMPION</div>
-    <div class="winner-sub">// HONEY HUB GAMES · GAUNTLET COMPLETE — YOU ARE THE FIRST</div>
+    <div class="winner-crown">🏆</div>
+    <div class="winner-title">YOU WON!</div>
+    <div class="winner-sub">// HONEY HUB GAMES · GAUNTLET COMPLETE</div>
     <div class="key-reveal">
-      <div class="key-label">🔑 &nbsp; HONEY DUEL PRIZE KEY</div>
-      <div class="key-value">l6tzq93yauv55s8oz1t1ccbn</div>
-      <button class="key-copy-btn" onclick="copyKey()">[ COPY KEY ]</button>
-      <div class="key-note">Redeem on Honey Duel. Screenshot or copy this now.</div>
+      <div class="key-label">⏳ &nbsp; PRIZE PENDING</div>
+      <div class="key-value" style="font-size:clamp(15px,2.5vw,22px);letter-spacing:2px;line-height:1.6;">Azmo has been notified.<br>Wait for him to reach out to you with your prize!</div>
+      <div class="key-note" style="margin-top:18px;">Make sure your Discord DMs are open so Azmo can contact you.</div>
     </div>
     <div class="winner-tag">CONGRATULATIONS, <span id="winner-name">CHAMPION</span></div>
   </div>
@@ -211,51 +210,54 @@
 
 <script>
 const PRIZE_KEY    = 'l6tzq93yauv55s8oz1t1ccbn';
-const STORAGE_KEY  = 'gauntlet:winner';
+const STORAGE_KEY  = 'gauntlet:winner:v3';
 
 const st = { user:'', completed:[], attempts:{}, currentLevel:null };
 
 async function checkIfClaimed() {
   try {
-    const result = await window.storage.get(STORAGE_KEY, true);
+    const timeout = new Promise(res => setTimeout(() => res(null), 3000));
+    const result = await Promise.race([window.storage.get(STORAGE_KEY, true), timeout]);
     if (result && result.value) {
       const data = JSON.parse(result.value);
       document.getElementById('claimed-by').textContent = '@' + (data.winner || 'unknown');
       showScreen('claimed');
       return true;
     }
-  } catch(e) { /* not claimed yet */ }
+  } catch(e) { /* not claimed yet, proceed */ }
   return false;
 }
 
 const LEVELS = [
-  {id:1,color:'#00e5ff',name:'THE CIPHER',tag:'CRYPTOGRAPHY',pts:100,
-   desc:'Decode the encrypted binary message carved into the ancient gate.',
+  {id:1,color:'#00e5ff',name:'THE VAULT',tag:'ROBLOX DEEP LORE',pts:100,
+   desc:'Only true Roblox veterans know this one.',
    type:'choice',
-   story:'You stand before the Gates of Obsidian. A stone tablet reads:\n\n01000111 01000001 01010100 01000101\n\n"Only those who can read the language of machines may pass."',
-   question:'What word do those binary digits spell?',
-   choices:['GATE','PASS','CODE','LOCK'],answer:'GATE',maxTries:3},
-  {id:2,color:'#a78bfa',name:'THE RIDDLE',tag:'LOGIC',pts:200,
-   desc:'Solve the ancient riddle spoken by the Guardian of the Second Gate.',
+   story:'The first chamber glows. The guardian speaks:\n\n"Before Roblox was called Roblox, it had a completely different name during development. The co-founder David Baszucki tested the very first prototype in 2004. What was the original name of Roblox before it launched to the public?"',
+   question:'What was Roblox originally called during development?',
+   choices:['DynaBlocks','BlockWorld','RoWorld','LuaBox'],answer:'DynaBlocks',maxTries:1},
+  {id:2,color:'#a78bfa',name:'THE NUMBER',tag:'ROBLOX STATS',pts:200,
+   desc:'A question about a specific Roblox detail most players never looked up.',
    type:'choice',
-   story:'"I have cities, but no houses live there.\nI have mountains, but no trees grow.\nI have water, but no fish swim.\nI have roads, but no cars drive.\nWhat am I?"',
-   question:'What is the answer to the riddle?',
-   choices:['A Dream','A Map','A Mirror','A Painting'],answer:'A Map',maxTries:3},
-  {id:3,color:'#f59e0b',name:'THE SEQUENCE',tag:'MATHEMATICS',pts:300,
-   desc:'Discover the pattern concealed within the numerical matrix.',
+   story:'The second guardian holds a scroll:\n\n"Roblox Studio uses a specific game engine that powers every single game on the platform. This engine was built in-house by Roblox Corporation. What is the name of the proprietary Roblox game engine?"',
+   question:'What is the name of the Roblox proprietary game engine?',
+   choices:['RCE','Roblox Engine','Roblox Physics Engine','Hyperion'],answer:'Roblox Engine',maxTries:1},
+  {id:3,color:'#f59e0b',name:'THE CODE',tag:'ROBLOX DEV',pts:300,
+   desc:'A developer-level question that casual players will not know.',
+   type:'choice',
+   story:'The third chamber is filled with floating scripts:\n\n"In Roblox Studio, there is a specific service used by developers to store data that persists between sessions for each player — like saving inventory, coins, or progress. What is this service called?"',
+   question:'What Roblox service is used to save player data between sessions?',
+   choices:['DataStoreService','SaveService','PlayerDataService','StorageService'],answer:'DataStoreService',maxTries:1},
+  {id:4,color:'#f87171',name:'THE SHADOW',tag:'ROBLOX HISTORY',pts:400,
+   desc:'Only the most dedicated Roblox players will know this.',
    type:'input',
-   story:'The Third Chamber walls are covered in numbers. A voice echoes:\n\n"Find what completes the sequence and the door will open."\n\n1, 1, 2, 3, 5, 8, 13, 21, ?',
-   question:'What is the next number?',answer:'34',maxTries:3},
-  {id:4,color:'#f87171',name:'THE SHADOW',tag:'WORDPLAY',pts:400,
-   desc:'Unmask the word hiding in plain sight within the echoing verse.',
-   type:'input',
-   story:'A poem is etched into the wall:\n\n"I speak without a mouth and hear without ears.\nI have no body, but I come alive with wind.\nWhat am I?"',
-   question:'One word, lowercase:',answer:'echo',maxTries:3},
-  {id:5,color:'#f0c040',name:'THE FINAL KEY',tag:'MASTER TRIAL',pts:500,
-   desc:'The ultimate challenge. Prove your mastery and claim the prize.',
-   type:'input',
-   story:'The final door looms before you. The inscription reads:\n\n"I am always in front of you but cannot be seen.\nI am consumed without being eaten.\nI can be wasted, saved, and lost —\nbut never created or destroyed.\nWhat am I?"',
-   question:'One word, lowercase:',answer:'time',maxTries:3}
+   story:'An inscription glows on the wall:\n\n"Roblox has an anti-cheat and anti-exploit system that runs silently in the background to detect cheaters and exploiters. It was introduced and became widely known in the community for banning exploiters.\n\nWhat is the one-word name of this Roblox anti-cheat system?"',
+   question:'One word, lowercase:',answer:'byfron',maxTries:1},
+  {id:5,color:'#f0c040',name:'THE FINAL KEY',tag:'HONEY HUB TRIAL',pts:500,
+   desc:'The ultimate question. Who runs Honey Hub? Only a true member knows.',
+   type:'choice',
+   story:'You stand before the final door. A golden inscription glows:\n\n"Every kingdom has a ruler. Honey Hub was built, grown, and led by one person from the very beginning. Prove your loyalty and your knowledge — who is the owner of Honey Hub?"',
+   question:'Who is the owner of Honey Hub?',
+   choices:['Azmo','vlasnik','felipe'],answer:'vlasnik',maxTries:1}
 ];
 
 function showScreen(id){
@@ -263,19 +265,16 @@ function showScreen(id){
   document.getElementById('screen-'+id).classList.add('active');
 }
 
-async function enterArena(){
+function enterArena(){
   const raw=document.getElementById('discord-input').value.trim();
   if(!raw||raw.length<2||/\s/.test(raw)){showErr('⚠ Enter a valid username with no spaces');return;}
   st.user=raw;
   document.getElementById('header-user').textContent=raw;
   document.getElementById('winner-name').textContent='@'+raw;
-  const btn=document.querySelector('.btn-enter');
-  btn.textContent='CHECKING...';btn.disabled=true;
-  const claimed=await checkIfClaimed();
-  btn.textContent='ENTER THE GAUNTLET';btn.disabled=false;
-  if(claimed)return;
   renderProgress();renderLevels();
   showScreen('challenge');
+  // Check in background after entering — doesn't block entry
+  checkIfClaimed();
 }
 function showErr(m){const e=document.getElementById('error-msg');e.textContent=m;e.style.display='block';}
 function clearErr(){document.getElementById('error-msg').style.display='none';}
@@ -401,6 +400,7 @@ async function claimKey(){
   try {
     await window.storage.set(STORAGE_KEY, JSON.stringify({winner:st.user, ts:Date.now()}), true);
   } catch(e) { console.error('Storage write failed',e); }
+  // Winner saved to shared storage — check admin panel
   launchConfetti();
   showScreen('winner');
 }
