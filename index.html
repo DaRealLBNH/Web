@@ -209,22 +209,33 @@
 </div>
 
 <script>
-const PRIZE_KEY    = 'l6tzq93yauv55s8oz1t1ccbn';
-const STORAGE_KEY  = 'gauntlet:winner:v3';
+const PRIZE_KEY   = 'l6tzq93yauv55s8oz1t1ccbn';
+const BIN_ID      = '699e42a443b1c97be99b031d';
+const API_KEY     = '$2a$10$w4/ubysjbu4myflrdR94T.vh/Okv.xHTTrOpwzc3YhL1TWejyG/8m';
+const BIN_URL     = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
+const HEADERS     = { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY };
 
 const st = { user:'', completed:[], attempts:{}, currentLevel:null };
 
+async function getBin() {
+  const res = await fetch(BIN_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
+  const json = await res.json();
+  return json.record;
+}
+
+async function setBin(data) {
+  await fetch(BIN_URL, { method: 'PUT', headers: HEADERS, body: JSON.stringify(data) });
+}
+
 async function checkIfClaimed() {
   try {
-    const timeout = new Promise(res => setTimeout(() => res(null), 3000));
-    const result = await Promise.race([window.storage.get(STORAGE_KEY, true), timeout]);
-    if (result && result.value) {
-      const data = JSON.parse(result.value);
+    const data = await getBin();
+    if (data && data.claimed) {
       document.getElementById('claimed-by').textContent = '@' + (data.winner || 'unknown');
       showScreen('claimed');
       return true;
     }
-  } catch(e) { /* not claimed yet, proceed */ }
+  } catch(e) { console.error('Check failed', e); }
   return false;
 }
 
@@ -393,14 +404,11 @@ function levelDone(id){
 }
 
 async function claimKey(){
-  // Double-check no one won while this player was solving
-  const alreadyClaimed=await checkIfClaimed();
-  if(alreadyClaimed)return;
-  // Save winner to shared storage (visible to all users)
+  const alreadyClaimed = await checkIfClaimed();
+  if(alreadyClaimed) return;
   try {
-    await window.storage.set(STORAGE_KEY, JSON.stringify({winner:st.user, ts:Date.now()}), true);
-  } catch(e) { console.error('Storage write failed',e); }
-  // Winner saved to shared storage — check admin panel
+    await setBin({ claimed: true, winner: st.user, ts: new Date().toUTCString() });
+  } catch(e) { console.error('Save winner failed', e); }
   launchConfetti();
   showScreen('winner');
 }
