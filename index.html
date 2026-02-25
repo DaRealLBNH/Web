@@ -213,12 +213,12 @@ const PRIZE_KEY   = 'l6tzq93yauv55s8oz1t1ccbn';
 const BIN_ID      = '699e42a443b1c97be99b031d';
 const API_KEY     = '$2a$10$w4/ubysjbu4myflrdR94T.vh/Okv.xHTTrOpwzc3YhL1TWejyG/8m';
 const BIN_URL     = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
-const HEADERS     = { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY };
+const HEADERS     = { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY, 'X-Access-Key': API_KEY };
 
 const st = { user:'', completed:[], attempts:{}, currentLevel:null };
 
 async function getBin() {
-  const res = await fetch(BIN_URL + '/latest', { headers: { 'X-Master-Key': API_KEY } });
+  const res = await fetch(BIN_URL + '/latest', { headers: { 'X-Master-Key': API_KEY, 'X-Access-Key': API_KEY } });
   const json = await res.json();
   return json.record;
 }
@@ -397,9 +397,9 @@ function submitText(){
 function setFb(ok,msg){const el=document.getElementById('fb');el.textContent=msg;el.className='feedback-msg '+(ok?'correct':'wrong');el.style.display='block';}
 function hideFb(){const el=document.getElementById('fb');if(el)el.style.display='none';}
 
-function levelDone(id){
+async function levelDone(id){
   if(!st.completed.includes(id))st.completed.push(id);
-  if(st.completed.length>=LEVELS.length){claimKey();return;}
+  if(st.completed.length>=LEVELS.length){await claimKey();return;}
   renderProgress();renderLevels();showScreen('challenge');
 }
 
@@ -407,7 +407,13 @@ async function claimKey(){
   const alreadyClaimed = await checkIfClaimed();
   if(alreadyClaimed) return;
   try {
-    await setBin({ claimed: true, winner: st.user, ts: new Date().toUTCString() });
+    const res = await fetch(BIN_URL, {
+      method: 'PUT',
+      headers: HEADERS,
+      body: JSON.stringify({ claimed: true, winner: st.user, ts: new Date().toUTCString() })
+    });
+    const json = await res.json();
+    console.log('Bin save result:', json);
   } catch(e) { console.error('Save winner failed', e); }
   launchConfetti();
   showScreen('winner');
