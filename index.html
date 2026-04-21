@@ -1,439 +1,431 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Honey Hub Games — GAUNTLET</title>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<title>متجر المربع - بتات نادرة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#060810;--panel:#0d1117;--border:#1e2d40;--gold:#f0c040;--red:#ff3b3b;--cyan:#00e5ff;--green:#00ff88;--text:#c8d8e8;--muted:#4a6070;}
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
-  body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);background-size:40px 40px;animation:gridshift 20s linear infinite;}
-  @keyframes gridshift{0%{background-position:0 0}100%{background-position:40px 40px}}
-  body::after{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,229,255,0.06) 0%,transparent 60%);}
-  #app{position:relative;z-index:1;}
-  .screen{display:none;min-height:100vh;}
-  .screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+:root{
+  --bg:#08080f;
+  --surface:#111118;
+  --card:#161621;
+  --border:rgba(255,255,255,0.08);
+  --border2:rgba(255,255,255,0.14);
+  --text:rgba(255,255,255,0.92);
+  --muted:rgba(180,180,210,0.5);
+  --accent:#a020f0;
+  --accent2:#f020a0;
+  --green:#3de88a;
+  --gold:#f7d44c;
+  --orange:#ff7c00;
+  --overlay:rgba(0,0,0,0.75);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);direction:rtl;overflow-x:hidden;min-height:100vh}
 
-  /* LOGIN */
-  #screen-login{text-align:center;padding:40px 20px;}
-  .logo{font-family:'Black Han Sans',sans-serif;font-size:clamp(32px,7vw,80px);letter-spacing:-2px;color:var(--gold);line-height:1;text-shadow:0 0 60px rgba(240,192,64,0.4),0 0 120px rgba(240,192,64,0.2);animation:logopulse 3s ease-in-out infinite;}
-  @keyframes logopulse{0%,100%{text-shadow:0 0 60px rgba(240,192,64,0.4),0 0 120px rgba(240,192,64,0.2);}50%{text-shadow:0 0 80px rgba(240,192,64,0.7),0 0 160px rgba(240,192,64,0.4);}}
-  .logo-sub{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:6px;margin-top:8px;}
-  .login-card{margin-top:50px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:44px 52px;max-width:440px;width:100%;box-shadow:0 0 60px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.04);}
-  .discord-badge{display:inline-flex;align-items:center;gap:8px;background:#5865F2;border-radius:8px;padding:8px 14px;margin-bottom:22px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#fff;letter-spacing:1px;}
-  .login-card h2{font-family:'Black Han Sans',sans-serif;font-size:26px;color:#fff;margin-bottom:10px;}
-  .login-card p{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:28px;}
-  .input-wrap{position:relative;margin-bottom:10px;}
-  .at-symbol{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-family:'Share Tech Mono',monospace;font-size:17px;color:#5865F2;pointer-events:none;}
-  .discord-input{width:100%;background:rgba(88,101,242,0.07);border:1.5px solid rgba(88,101,242,0.25);border-radius:10px;padding:14px 14px 14px 32px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:16px;outline:none;transition:all 0.2s;}
-  .discord-input:focus{border-color:#5865F2;box-shadow:0 0 0 3px rgba(88,101,242,0.15);}
-  .discord-input::placeholder{color:var(--muted);}
-  .input-hint{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:22px;}
-  .btn-enter{width:100%;background:linear-gradient(135deg,#5865F2,#4752C4);color:#fff;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:10px;padding:15px;cursor:pointer;transition:all 0.2s;}
-  .btn-enter:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(88,101,242,0.45);}
-  .error-msg{margin-top:10px;color:var(--red);font-family:'Share Tech Mono',monospace;font-size:12px;display:none;text-align:center;}
-  .prize-teaser{margin-top:26px;padding:14px;background:linear-gradient(135deg,rgba(240,192,64,0.07),rgba(255,170,0,0.03));border:1px solid rgba(240,192,64,0.2);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:2px;text-align:center;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;background:rgba(8,8,15,0.96);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:90;backdrop-filter:blur(14px)}
+.nav-logo{font-size:1.4rem;font-weight:900;background:linear-gradient(90deg,#ff4cf7,#4cf7ff,#f7ff4c,#ff4c4c);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-actions{display:flex;gap:10px;align-items:center}
+.nav-btn{width:38px;height:38px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all .2s;position:relative}
+.nav-btn:hover{background:rgba(255,255,255,0.12);border-color:var(--border2)}
+.badge-dot{position:absolute;top:-5px;right:-5px;width:18px;height:18px;background:#e74c3c;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-family:'Tajawal',sans-serif}
+.user-tag{font-size:.8rem;color:var(--muted);cursor:pointer;transition:color .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.user-tag:hover{color:var(--text)}
+.user-tag .dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
 
-  /* CHALLENGE MAP */
-  #screen-challenge{padding:40px 20px;}
-  .challenge-header{text-align:center;margin-bottom:36px;}
-  .challenge-header h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(28px,5vw,52px);color:#fff;}
-  .challenge-header p{color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;margin-top:6px;}
-  .progress-wrap{max-width:680px;width:100%;margin:0 auto 34px;}
-  .progress-steps{display:flex;align-items:center;}
-  .prog-step{flex:1;text-align:center;position:relative;}
-  .prog-line{position:absolute;top:15px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0;transition:background 0.4s;}
-  .prog-line.done{background:var(--green);}
-  .prog-step:last-child .prog-line{display:none;}
-  .prog-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:12px;margin:0 auto;position:relative;z-index:1;transition:all 0.3s;}
-  .prog-dot.done{border-color:var(--green);background:rgba(0,255,136,0.1);color:var(--green);}
-  .prog-dot.active{border-color:var(--gold);background:rgba(240,192,64,0.1);color:var(--gold);animation:pulsedot 1.5s ease-in-out infinite;}
-  @keyframes pulsedot{0%,100%{box-shadow:0 0 0 0 rgba(240,192,64,0.3)}50%{box-shadow:0 0 0 8px rgba(240,192,64,0)}}
-  .prog-label{font-size:10px;color:var(--muted);margin-top:5px;font-family:'Share Tech Mono',monospace;}
-  .levels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:1100px;width:100%;margin:0 auto;}
-  .level-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:28px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;}
-  .level-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--lc,var(--cyan));}
-  .level-card:hover:not(.locked):not(.completed){border-color:var(--lc,var(--cyan));transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.4);}
-  .level-card.locked{opacity:0.35;cursor:not-allowed;}
-  .level-card.completed{border-color:rgba(0,255,136,0.3);}
-  .level-card.active-level{border-color:var(--gold);box-shadow:0 0 28px rgba(240,192,64,0.1);}
-  .level-num{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--lc,var(--cyan));margin-bottom:8px;}
-  .level-name{font-family:'Black Han Sans',sans-serif;font-size:24px;color:#fff;margin-bottom:10px;}
-  .level-desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:16px;}
-  .level-tag{display:inline-block;border:1px solid rgba(255,255,255,0.1);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 10px;border-radius:4px;letter-spacing:2px;}
-  .level-status{position:absolute;top:14px;right:14px;font-family:'Share Tech Mono',monospace;font-size:11px;}
-  .level-status.done{color:var(--green);}
-  .level-status.locked-txt{color:var(--muted);}
-  .level-status.current{color:var(--gold);}
+.hero{position:relative;min-height:300px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#06060d}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(140,0,220,.3) 0%,transparent 55%),radial-gradient(ellipse at 70% 55%,rgba(0,160,220,.18) 0%,transparent 55%),radial-gradient(ellipse at 50% 95%,rgba(220,0,140,.15) 0%,transparent 50%)}
+.hero-content{position:relative;z-index:5;text-align:center;padding:44px 20px}
+.neon-title{font-size:clamp(3rem,10vw,7rem);font-weight:900;line-height:1;position:relative;display:inline-block}
+.neon-title .solid{color:transparent;-webkit-text-stroke:2px rgba(255,255,255,0.13)}
+.neon-title .rainbow{position:absolute;inset:0;background:linear-gradient(90deg,#ff4cf7,#4cf7ff,#f7ff4c,#ff4c4c,#4cffb4,#ff4cf7);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:rgb-move 3s linear infinite}
+@keyframes rgb-move{0%{background-position:0%}100%{background-position:300%}}
+.hero-sub{font-size:.95rem;color:var(--muted);margin-top:12px;letter-spacing:1px}
 
-  /* PUZZLE */
-  #screen-puzzle{padding:40px 20px;}
-  .puzzle-container{max-width:680px;width:100%;margin:0 auto;}
-  .puzzle-back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;cursor:pointer;margin-bottom:26px;letter-spacing:2px;transition:color 0.2s;background:none;border:none;}
-  .puzzle-back:hover{color:var(--cyan);}
-  .puzzle-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-  .puzzle-header{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-  .puzzle-level-badge{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--lc,var(--cyan));}
-  .puzzle-pts{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:2px;}
-  .puzzle-body{padding:28px;}
-  .puzzle-body h2{font-family:'Black Han Sans',sans-serif;font-size:26px;color:#fff;margin-bottom:14px;}
-  .story{color:var(--text);line-height:1.8;font-size:15px;margin-bottom:24px;padding:18px 20px;background:rgba(0,229,255,0.03);border-left:3px solid rgba(0,229,255,0.25);border-radius:0 8px 8px 0;white-space:pre-line;}
-  .puzzle-question{font-size:17px;font-weight:600;color:#fff;margin-bottom:18px;}
-  .choices{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
-  .choice-btn{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:13px 18px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;cursor:pointer;text-align:left;transition:all 0.15s;}
-  .choice-btn:hover:not(:disabled){border-color:var(--cyan);background:rgba(0,229,255,0.05);color:#fff;}
-  .choice-btn.correct{border-color:var(--green)!important;background:rgba(0,255,136,0.08)!important;color:var(--green)!important;}
-  .choice-btn.wrong{border-color:var(--red)!important;background:rgba(255,59,59,0.08)!important;color:var(--red)!important;}
-  .attempts-left{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px;letter-spacing:1px;}
-  .puzzle-input{width:100%;background:rgba(255,255,255,0.03);border:1.5px solid var(--border);border-radius:8px;padding:13px 16px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:16px;outline:none;transition:border-color 0.2s;margin-bottom:13px;}
-  .puzzle-input:focus{border-color:var(--cyan);}
-  .btn-submit{background:var(--cyan);color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;padding:13px 28px;cursor:pointer;transition:all 0.2s;}
-  .btn-submit:hover:not(:disabled){box-shadow:0 0 24px rgba(0,229,255,0.4);transform:translateY(-1px);}
-  .btn-submit:disabled{opacity:0.4;cursor:not-allowed;}
-  .feedback-msg{margin-top:13px;padding:12px 16px;border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;display:none;}
-  .feedback-msg.correct{background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.2);color:var(--green);}
-  .feedback-msg.wrong{background:rgba(255,59,59,0.07);border:1px solid rgba(255,59,59,0.2);color:var(--red);}
+.marquee-wrap{background:#0f0018;border-top:1px solid rgba(255,60,255,.12);border-bottom:1px solid rgba(255,60,255,.12);overflow:hidden;padding:8px 0}
+.marquee{display:flex;gap:60px;animation:scroll-l 22s linear infinite;white-space:nowrap}
+.marquee span{color:rgba(255,140,255,.7);font-size:.82rem;font-weight:700}
+.marquee span::before{content:'★  '}
+@keyframes scroll-l{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-  /* WINNER */
-  #screen-winner{text-align:center;padding:40px 20px;}
-  .winner-crown{font-size:80px;margin-bottom:20px;animation:crownbounce 0.8s ease-out;}
-  @keyframes crownbounce{0%{transform:scale(0) rotate(-20deg)}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
-  .winner-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(40px,8vw,80px);color:var(--gold);text-shadow:0 0 60px rgba(240,192,64,0.5);margin-bottom:6px;}
-  .winner-sub{color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;margin-bottom:42px;}
-  .key-reveal{background:var(--panel);border:2px solid var(--gold);border-radius:14px;padding:36px;max-width:520px;margin:0 auto 26px;box-shadow:0 0 60px rgba(240,192,64,0.12);}
-  .key-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);margin-bottom:14px;}
-  .key-value{font-family:'Share Tech Mono',monospace;font-size:clamp(13px,2.5vw,20px);color:var(--gold);letter-spacing:3px;word-break:break-all;text-shadow:0 0 20px rgba(240,192,64,0.4);}
-  .key-copy-btn{margin-top:18px;background:rgba(240,192,64,0.1);border:1px solid rgba(240,192,64,0.3);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;padding:8px 20px;border-radius:6px;cursor:pointer;transition:all 0.2s;}
-  .key-copy-btn:hover{background:rgba(240,192,64,0.2);}
-  .key-note{font-size:13px;color:var(--muted);margin-top:14px;line-height:1.5;}
-  .winner-tag{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--muted);letter-spacing:2px;}
-  .winner-tag span{color:var(--gold);}
+.section{padding:22px 20px 50px}
+.sec-title{font-size:1.1rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:13px}
+.card{border-radius:14px;overflow:hidden;cursor:pointer;background:var(--card);border:1px solid var(--border);transition:transform .25s,box-shadow .25s,border-color .25s;animation:card-up .45s ease-out backwards}
+.card:hover{transform:translateY(-5px) scale(1.02);border-color:rgba(220,80,255,.45);box-shadow:0 10px 30px rgba(150,30,220,.3)}
+@keyframes card-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.card-thumb{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:54px;position:relative;overflow:hidden}
+.card-thumb .shine{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.07) 0%,transparent 55%)}
+.card-body{padding:10px 12px 13px}
+.card-name{font-size:.88rem;font-weight:700;color:#f0f0ff;margin-bottom:2px}
+.card-sub{font-size:.71rem;color:var(--muted);margin-bottom:9px}
+.card-footer{display:flex;align-items:center;justify-content:space-between}
+.price{font-size:.98rem;font-weight:900;color:var(--green)}
+.buy-btn{background:rgba(255,255,255,.08);border:1px solid var(--border2);color:#fff;padding:5px 12px;border-radius:7px;font-family:'Tajawal',sans-serif;font-size:.77rem;cursor:pointer;transition:all .2s}
+.buy-btn:hover{background:rgba(255,255,255,.18)}
+.pet-badge{position:absolute;top:8px;right:8px;z-index:5;padding:3px 9px;border-radius:20px;font-size:.65rem;font-weight:700;font-family:'Tajawal',sans-serif}
+.pet-badge.rare{background:linear-gradient(90deg,var(--gold),var(--orange));color:#1a0800}
+.pet-badge.ultra{background:linear-gradient(90deg,#ff4cf7,var(--accent));color:#fff}
 
-  /* CLAIMED */
-  #screen-claimed{text-align:center;padding:40px 20px;}
-  .claimed-icon{font-size:70px;margin-bottom:20px;}
-  .claimed-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(32px,6vw,56px);color:var(--red);margin-bottom:10px;}
-  .claimed-sub{color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;margin-bottom:26px;}
-  .claimed-box{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px 32px;font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--muted);display:inline-block;margin-bottom:20px;}
-  .claimed-box span{color:#fff;}
+.float-cart{position:fixed;bottom:24px;left:24px;z-index:85;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 22px rgba(160,20,220,.6);animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.fc-count{position:absolute;top:-4px;right:-4px;background:#e74c3c;width:18px;height:18px;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:900}
 
-  /* FAILED */
-  #screen-failed{text-align:center;padding:40px 20px;}
-  .failed-icon{font-size:70px;margin-bottom:20px;}
-  .failed-title{font-family:'Black Han Sans',sans-serif;font-size:clamp(32px,6vw,56px);color:var(--red);margin-bottom:10px;}
-  .failed-sub{color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;margin-bottom:26px;}
-  .btn-retry{background:linear-gradient(135deg,var(--red),#cc1a1a);color:#fff;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:10px;padding:15px 40px;cursor:pointer;transition:all 0.2s;margin-top:10px;}
-  .btn-retry:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,59,59,0.4);}
+.backdrop{position:fixed;inset:0;background:var(--overlay);z-index:100;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px)}
+.backdrop.show{opacity:1;pointer-events:all}
 
-  #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:999;}
-  @media(max-width:600px){.login-card{padding:28px 20px;}.puzzle-body{padding:20px;}}
+.drawer{position:fixed;top:0;left:-440px;width:min(420px,100vw);height:100%;background:var(--surface);border-right:1px solid var(--border);z-index:101;transition:left .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drawer.open{left:0}
+.drawer-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-head h2{font-size:1.05rem;font-weight:700}
+.close-btn{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.close-btn:hover{background:rgba(255,255,255,.13)}
+.drawer-body{flex:1;overflow-y:auto;padding:16px 20px}
+.drawer-body::-webkit-scrollbar{width:4px}
+.drawer-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}
+.drawer-foot{padding:16px 20px;border-top:1px solid var(--border);flex-shrink:0}
+
+.cart-item{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.ci-emoji{font-size:30px;width:50px;height:50px;background:var(--card);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-size:.87rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-price{font-size:.81rem;color:var(--green);margin-top:2px}
+.ci-remove{width:28px;height:28px;border-radius:7px;background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:#e74c3c;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s}
+.ci-remove:hover{background:rgba(231,76,60,.3)}
+.empty-cart{text-align:center;padding:50px 20px;color:var(--muted);font-size:.9rem}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.cart-total-label{font-size:.9rem;color:var(--muted)}
+.cart-total-val{font-size:1.2rem;font-weight:900;color:var(--green)}
+.apple-pay-btn{width:100%;height:52px;background:#fff;border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-size:1.05rem;font-weight:700;color:#000;font-family:'Tajawal',sans-serif;transition:all .2s}
+.apple-pay-btn:hover{background:#ececec;transform:scale(1.01)}
+.apple-pay-btn:active{transform:scale(.98)}
+.or-divider{text-align:center;color:var(--muted);font-size:.8rem;margin:10px 0;position:relative}
+.or-divider::before,.or-divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--border)}
+.or-divider::before{right:0}.or-divider::after{left:0}
+.card-pay-btn{width:100%;height:46px;background:rgba(255,255,255,.07);border:1px solid var(--border2);border-radius:12px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:.92rem;cursor:pointer;transition:background .2s}
+.card-pay-btn:hover{background:rgba(255,255,255,.13)}
+
+.settings-section{margin-bottom:24px}
+.settings-section h3{font-size:.77rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card);border-radius:12px;margin-bottom:8px;border:1px solid var(--border);gap:12px}
+.setting-row-label{font-size:.87rem;font-weight:700}
+.setting-row-desc{font-size:.71rem;color:var(--muted);margin-top:2px}
+.toggle{width:44px;height:24px;background:rgba(255,255,255,.12);border-radius:50px;cursor:pointer;position:relative;transition:background .3s;border:none;flex-shrink:0}
+.toggle.on{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.toggle::after{content:'';position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:right .3s}
+.toggle.on::after{right:calc(100% - 21px)}
+.setting-select{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:.82rem;padding:6px 10px;cursor:pointer;outline:none;flex-shrink:0}
+.setting-select option{background:#1a1a2e}
+
+.modal-backdrop{position:fixed;inset:0;background:var(--overlay);z-index:101;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px)}
+.modal-backdrop.show{opacity:1;pointer-events:all}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.93);width:min(400px,94vw);background:var(--surface);border:1px solid var(--border);border-radius:20px;z-index:102;opacity:0;pointer-events:none;transition:all .3s;padding:32px 28px}
+.modal.show{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1)}
+.modal h2{font-size:1.25rem;font-weight:900;margin-bottom:6px}
+.modal p{font-size:.84rem;color:var(--muted);margin-bottom:22px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.79rem;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:.92rem;outline:none;transition:border-color .2s;direction:ltr}
+.field input:focus{border-color:rgba(160,32,240,.6)}
+.login-btn{width:100%;height:48px;background:linear-gradient(90deg,var(--accent),var(--accent2));border:none;border-radius:12px;color:#fff;font-family:'Tajawal',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .2s}
+.login-btn:hover{opacity:.9}
+.login-divider{text-align:center;color:var(--muted);font-size:.78rem;margin:14px 0;position:relative}
+.login-divider::before,.login-divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border)}
+.login-divider::before{right:0}.login-divider::after{left:0}
+.social-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.social-btn{height:42px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);font-family:'Tajawal',sans-serif;font-size:.82rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .2s}
+.social-btn:hover{background:rgba(255,255,255,.13)}
+.signup-link{text-align:center;font-size:.8rem;color:var(--muted);margin-top:18px}
+.signup-link span{color:#c060ff;cursor:pointer}
+.signup-link span:hover{text-decoration:underline}
+.modal-close{position:absolute;top:16px;left:16px;width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pay-success{text-align:center;padding:28px 10px}
+.pay-success .big-emoji{font-size:54px;margin-bottom:14px}
+.pay-success h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
+.pay-success p{font-size:.84rem;color:var(--muted);line-height:1.7}
+
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:rgba(20,5,40,.97);border:1px solid rgba(200,80,255,.45);color:#ddb0ff;padding:11px 24px;border-radius:10px;font-size:.86rem;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
-<canvas id="confetti-canvas"></canvas>
-<div id="app">
 
-  <!-- LOGIN -->
-  <div id="screen-login" class="screen active">
-    <div class="logo">Honey Hub Games</div>
-    <div class="logo-sub">HONEY HUB GAMES · FIVE TRIALS · ONE CHAMPION</div>
-    <div class="login-card">
-      <div class="discord-badge">
-        <svg width="20" height="15" viewBox="0 0 71 55" fill="none"><path d="M60.1 4.9A58.8 58.8 0 0 0 45.6.4a.2.2 0 0 0-.2.1 41 41 0 0 0-1.8 3.7 54.3 54.3 0 0 0-16.3 0A37.8 37.8 0 0 0 25.5.5a.2.2 0 0 0-.2-.1A58.7 58.7 0 0 0 10.8 4.9a.2.2 0 0 0-.1.1C1.6 18.1-.9 31 .3 43.7a.2.2 0 0 0 .1.2 59.1 59.1 0 0 0 17.8 9 .2.2 0 0 0 .2-.1 42.2 42.2 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.9 38.9 0 0 1-5.6-2.6.2.2 0 0 1 0-.4l1.1-.9a.2.2 0 0 1 .2 0C26.7 47.5 35.2 47.5 44 43.7a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 37 37 0 0 1-5.6 2.6.2.2 0 0 0-.1.3c1 2 2.2 4 3.6 5.9a.2.2 0 0 0 .2.1 58.9 58.9 0 0 0 17.9-9 .2.2 0 0 0 .1-.2c1.5-15-2.5-28-10.5-39.5a.2.2 0 0 0-.1-.3zM23.7 36.4c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2zm23.7 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2z" fill="white"/></svg>
-        Discord Username
-      </div>
-      <h2>Enter the Arena</h2>
-      <p>Type your Discord username to begin. Only the first to beat all 5 levels wins the prize key.</p>
-      <div class="input-wrap">
-        <span class="at-symbol">@</span>
-        <input class="discord-input" id="discord-input" placeholder="yourname" maxlength="32" onkeydown="if(event.key==='Enter')enterArena()" oninput="clearErr()">
-      </div>
-      <div class="input-hint">// no spaces · e.g. dragonslayer99</div>
-      <button class="btn-enter" onclick="enterArena()">ENTER THE GAUNTLET</button>
-      <div class="error-msg" id="error-msg"></div>
-      <div class="prize-teaser">🏆 &nbsp; HONEY DUEL PRIZE KEY AWAITS &nbsp; 🏆</div>
+<nav>
+  <div class="nav-logo">متجر المربع</div>
+  <div class="nav-actions">
+    <div id="userTag" class="user-tag" onclick="openLogin()"><span>تسجيل دخول</span></div>
+    <div class="nav-btn" onclick="openSettings()">⚙️</div>
+    <div class="nav-btn" onclick="openCart()">🛒<span class="badge-dot" id="navCount">0</span></div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="neon-title">
+      <span class="solid" aria-hidden="true">المربع</span>
+      <span class="rainbow">المربع</span>
     </div>
+    <div class="hero-sub">بتات نادرة حصرية — Steal a Brainrot 🐾</div>
   </div>
-
-  <!-- CHALLENGE MAP -->
-  <div id="screen-challenge" class="screen">
-    <div class="challenge-header">
-      <h1>HONEY HUB GAMES</h1>
-      <p>// COMPLETE ALL 5 TRIALS IN ORDER · @<span id="header-user"></span></p>
-    </div>
-    <div class="progress-wrap"><div class="progress-steps" id="prog-steps"></div></div>
-    <div class="levels-grid" id="levels-grid"></div>
-  </div>
-
-  <!-- PUZZLE -->
-  <div id="screen-puzzle" class="screen">
-    <div class="puzzle-container">
-      <button class="puzzle-back" onclick="showScreen('challenge')">← BACK TO MAP</button>
-      <div class="puzzle-card" id="puzzle-card"></div>
-    </div>
-  </div>
-
-  <!-- WINNER -->
-  <div id="screen-winner" class="screen">
-    <div class="winner-crown">🏆</div>
-    <div class="winner-title">YOU WON!</div>
-    <div class="winner-sub">// HONEY HUB GAMES · GAUNTLET COMPLETE</div>
-    <div class="key-reveal">
-      <div class="key-label">⏳ &nbsp; PRIZE PENDING</div>
-      <div class="key-value" style="font-size:clamp(15px,2.5vw,22px);letter-spacing:2px;line-height:1.6;">Azmo has been notified.<br>Wait for him to reach out to you with your prize!</div>
-      <div class="key-note" style="margin-top:18px;">Make sure your Discord DMs are open so Azmo can contact you.</div>
-    </div>
-    <div class="winner-tag">CONGRATULATIONS, <span id="winner-name">CHAMPION</span></div>
-  </div>
-
-  <!-- CLAIMED -->
-  <div id="screen-claimed" class="screen">
-    <div class="claimed-icon">🔒</div>
-    <div class="claimed-title">KEY CLAIMED</div>
-    <div class="claimed-sub">// HONEY HUB GAMES · ANOTHER CHAMPION HAS ALREADY WON</div>
-    <div class="claimed-box">Claimed by: <span id="claimed-by">—</span></div>
-    <p style="color:var(--muted);max-width:360px;line-height:1.7;font-size:15px;text-align:center;">The prize key has already been taken. This competition has concluded.</p>
-  </div>
-
-  <!-- FAILED (ran out of attempts) -->
-  <div id="screen-failed" class="screen">
-    <div class="failed-icon">💀</div>
-    <div class="failed-title">ELIMINATED</div>
-    <div class="failed-sub">// YOU HAVE EXHAUSTED ALL ATTEMPTS</div>
-    <p style="color:var(--muted);max-width:380px;line-height:1.7;font-size:15px;text-align:center;margin-bottom:28px;">You've used all your attempts on this trial. The answer remains a secret. Return to the map and try again from a fresh run.</p>
-    <button class="btn-retry" onclick="showScreen('challenge')">← RETURN TO MAP</button>
-  </div>
-
 </div>
 
+<div class="marquee-wrap"><div class="marquee" id="mq"></div></div>
+
+<div class="section">
+  <div class="sec-title">🐾 البتات النادرة</div>
+  <div class="cards" id="grid"></div>
+</div>
+
+<button class="float-cart" onclick="openCart()">🛒<span class="fc-count" id="fcCount">0</span></button>
+
+<!-- Backdrop for drawers -->
+<div class="backdrop" id="backdrop" onclick="closeAll()"></div>
+
+<!-- CART DRAWER -->
+<div class="drawer" id="cartDrawer">
+  <div class="drawer-head">
+    <h2>🛒 سلتك</h2>
+    <button class="close-btn" onclick="closeAll()">✕</button>
+  </div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot" id="cartFoot"></div>
+</div>
+
+<!-- SETTINGS DRAWER -->
+<div class="drawer" id="settingsDrawer">
+  <div class="drawer-head">
+    <h2>⚙️ الإعدادات</h2>
+    <button class="close-btn" onclick="closeAll()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="settings-section">
+      <h3>الإشعارات</h3>
+      <div class="setting-row">
+        <div><div class="setting-row-label">إشعارات العروض</div><div class="setting-row-desc">تنبيهات البتات الجديدة</div></div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-row-label">تنبيه المخزون</div><div class="setting-row-desc">عند بقاء نسخة أخيرة</div></div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h3>المظهر</h3>
+      <div class="setting-row">
+        <div><div class="setting-row-label">الوضع الليلي</div><div class="setting-row-desc">الوضع الداكن دائماً</div></div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-row-label">اللغة</div><div class="setting-row-desc">لغة التطبيق</div></div>
+        <select class="setting-select"><option>العربية</option><option>English</option></select>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h3>الدفع</h3>
+      <div class="setting-row">
+        <div><div class="setting-row-label">Apple Pay</div><div class="setting-row-desc">الدفع السريع عند الشراء</div></div>
+        <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-row-label">حفظ بطاقة الدفع</div><div class="setting-row-desc">للدفع السريع</div></div>
+        <button class="toggle" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h3>الخصوصية</h3>
+      <div class="setting-row">
+        <div><div class="setting-row-label">مشاركة البيانات</div><div class="setting-row-desc">تحسين تجربة المتجر</div></div>
+        <button class="toggle" onclick="this.classList.toggle('on')"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeLogin()"></div>
+<div class="modal" id="loginModal">
+  <button class="modal-close" onclick="closeLogin()">✕</button>
+  <h2 id="authTitle">أهلاً بك 👋</h2>
+  <p id="authSub">سجّل دخولك للوصول لسلتك وطلباتك</p>
+  <div id="loginForm">
+    <div class="field"><label>البريد الإلكتروني</label><input type="email" id="emailInput" placeholder="you@example.com"></div>
+    <div class="field"><label>كلمة المرور</label><input type="password" id="passInput" placeholder="••••••••"></div>
+    <button class="login-btn" onclick="doLogin()">تسجيل الدخول</button>
+    <div class="login-divider">أو</div>
+    <div class="social-row">
+      <button class="social-btn" onclick="socialLogin('Google')">🌐 Google</button>
+      <button class="social-btn" onclick="socialLogin('Apple')"> Apple</button>
+    </div>
+    <div class="signup-link">ما عندك حساب؟ <span onclick="switchToSignup()">أنشئ حساب</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-const PRIZE_KEY   = 'l6tzq93yauv55s8oz1t1ccbn';
-const BIN_ID      = '699e42a443b1c97be99b031d';
-const API_KEY     = '$2a$10$w4/ubysjbu4myflrdR94T.vh/Okv.xHTTrOpwzc3YhL1TWejyG/8m';
-const BIN_URL     = 'https://api.jsonbin.io/v3/b/' + BIN_ID;
-const HEADERS     = { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY, 'X-Access-Key': API_KEY };
-
-const st = { user:'', completed:[], attempts:{}, currentLevel:null };
-
-async function getBin() {
-  const res = await fetch(BIN_URL + '/latest', { headers: { 'X-Master-Key': API_KEY, 'X-Access-Key': API_KEY } });
-  const json = await res.json();
-  return json.record;
-}
-
-async function setBin(data) {
-  await fetch(BIN_URL, { method: 'PUT', headers: HEADERS, body: JSON.stringify(data) });
-}
-
-async function checkIfClaimed() {
-  try {
-    const data = await getBin();
-    if (data && data.claimed) {
-      document.getElementById('claimed-by').textContent = '@' + (data.winner || 'unknown');
-      showScreen('claimed');
-      return true;
-    }
-  } catch(e) { console.error('Check failed', e); }
-  return false;
-}
-
-const LEVELS = [
-  {id:1,color:'#00e5ff',name:'THE VAULT',tag:'ROBLOX DEEP LORE',pts:100,
-   desc:'Only true Roblox veterans know this one.',
-   type:'choice',
-   story:'The first chamber glows. The guardian speaks:\n\n"Before Roblox was called Roblox, it had a completely different name during development. The co-founder David Baszucki tested the very first prototype in 2004. What was the original name of Roblox before it launched to the public?"',
-   question:'What was Roblox originally called during development?',
-   choices:['DynaBlocks','BlockWorld','RoWorld','LuaBox'],answer:'DynaBlocks',maxTries:1},
-  {id:2,color:'#a78bfa',name:'THE NUMBER',tag:'ROBLOX STATS',pts:200,
-   desc:'A question about a specific Roblox detail most players never looked up.',
-   type:'choice',
-   story:'The second guardian holds a scroll:\n\n"Roblox Studio uses a specific game engine that powers every single game on the platform. This engine was built in-house by Roblox Corporation. What is the name of the proprietary Roblox game engine?"',
-   question:'What is the name of the Roblox proprietary game engine?',
-   choices:['RCE','Roblox Engine','Roblox Physics Engine','Hyperion'],answer:'Roblox Engine',maxTries:1},
-  {id:3,color:'#f59e0b',name:'THE CODE',tag:'ROBLOX DEV',pts:300,
-   desc:'A developer-level question that casual players will not know.',
-   type:'choice',
-   story:'The third chamber is filled with floating scripts:\n\n"In Roblox Studio, there is a specific service used by developers to store data that persists between sessions for each player — like saving inventory, coins, or progress. What is this service called?"',
-   question:'What Roblox service is used to save player data between sessions?',
-   choices:['DataStoreService','SaveService','PlayerDataService','StorageService'],answer:'DataStoreService',maxTries:1},
-  {id:4,color:'#f87171',name:'THE SHADOW',tag:'ROBLOX HISTORY',pts:400,
-   desc:'Only the most dedicated Roblox players will know this.',
-   type:'input',
-   story:'An inscription glows on the wall:\n\n"Roblox has an anti-cheat and anti-exploit system that runs silently in the background to detect cheaters and exploiters. It was introduced and became widely known in the community for banning exploiters.\n\nWhat is the one-word name of this Roblox anti-cheat system?"',
-   question:'One word, lowercase:',answer:'byfron',maxTries:1},
-  {id:5,color:'#f0c040',name:'THE FINAL KEY',tag:'HONEY HUB TRIAL',pts:500,
-   desc:'The ultimate question. Who runs Honey Hub? Only a true member knows.',
-   type:'choice',
-   story:'You stand before the final door. A golden inscription glows:\n\n"Every kingdom has a ruler. Honey Hub was built, grown, and led by one person from the very beginning. Prove your loyalty and your knowledge — who is the owner of Honey Hub?"',
-   question:'Who is the owner of Honey Hub?',
-   choices:['Azmo','vlasnik','felipe'],answer:'vlasnik',maxTries:1}
+const pets=[
+  {id:1,name:'Skibidi Toilet Pet',sub:'بت حصري نادر',price:30,priceAr:'٣٠',emoji:'🚽',bg:'linear-gradient(135deg,#0d1a10,#0a1208)',badge:'rare'},
+  {id:2,name:'Gyatt Pet أسطوري',sub:'بت أسطوري نادر جداً',price:80,priceAr:'٨٠',emoji:'🦄',bg:'linear-gradient(135deg,#1a001a,#160018)',badge:'ultra'},
+  {id:3,name:'NPC Pet مضحك',sub:'بت كوميدي حصري',price:40,priceAr:'٤٠',emoji:'🤖',bg:'linear-gradient(135deg,#0d0d1a,#0a0a18)',badge:'rare'},
+  {id:4,name:'Shadow Cat Pet',sub:'بت الظل النادر',price:65,priceAr:'٦٥',emoji:'🐈‍⬛',bg:'linear-gradient(135deg,#1a0a1a,#120812)',badge:'ultra'},
+  {id:5,name:'Phoenix Pet',sub:'طائر الفينيكس الأسطوري',price:95,priceAr:'٩٥',emoji:'🦅',bg:'linear-gradient(135deg,#1a0800,#180600)',badge:'ultra'},
+  {id:6,name:'Glitch Bunny Pet',sub:'أرنب الغليتش النادر',price:55,priceAr:'٥٥',emoji:'🐰',bg:'linear-gradient(135deg,#0a001a,#080018)',badge:'rare'},
 ];
+const badgeText={rare:'💎 نادر',ultra:'👑 أسطوري'};
+let cart=[],loggedIn=false,userName='';
 
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+id).classList.add('active');
+function renderShop(){
+  document.getElementById('grid').innerHTML=pets.map((it,i)=>`
+    <div class="card" style="animation-delay:${i*.07}s">
+      <div class="card-thumb" style="background:${it.bg}">
+        <span class="pet-badge ${it.badge}">${badgeText[it.badge]}</span>
+        ${it.emoji}<div class="shine"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${it.name}</div>
+        <div class="card-sub">${it.sub}</div>
+        <div class="card-footer">
+          <span class="price">${it.priceAr} ر.س</span>
+          <button class="buy-btn" onclick="addToCart(${it.id})">اشتري</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
 }
 
-function enterArena(){
-  const raw=document.getElementById('discord-input').value.trim();
-  if(!raw||raw.length<2||/\s/.test(raw)){showErr('⚠ Enter a valid username with no spaces');return;}
-  st.user=raw;
-  document.getElementById('header-user').textContent=raw;
-  document.getElementById('winner-name').textContent='@'+raw;
-  renderProgress();renderLevels();
-  showScreen('challenge');
-  // Check in background after entering — doesn't block entry
-  checkIfClaimed();
+function addToCart(id){
+  if(cart.find(c=>c.id===id)){showToast('✅ موجود في السلة بالفعل');return;}
+  cart.push({...pets.find(p=>p.id===id)});
+  updateCount();
+  showToast('✅ أضيف: '+pets.find(p=>p.id===id).name);
 }
-function showErr(m){const e=document.getElementById('error-msg');e.textContent=m;e.style.display='block';}
-function clearErr(){document.getElementById('error-msg').style.display='none';}
-
-function renderProgress(){
-  document.getElementById('prog-steps').innerHTML=LEVELS.map((l,i)=>{
-    const done=st.completed.includes(l.id);
-    const active=!done&&(i===0||st.completed.includes(LEVELS[i-1].id));
-    return '<div class="prog-step"><div class="prog-line'+(done?' done':'')+'"></div>'
-      +'<div class="prog-dot'+(done?' done':active?' active':'')+'>'+(done?'✓':l.id)+'</div>'
-      +'<div class="prog-label">LVL '+l.id+'</div></div>';
-  }).join('');
+function removeFromCart(id){
+  cart=cart.filter(c=>c.id!==id);
+  updateCount();renderCartBody();
+}
+function updateCount(){
+  const n=cart.length;
+  document.getElementById('navCount').textContent=n;
+  document.getElementById('fcCount').textContent=n;
 }
 
-function renderLevels(){
-  document.getElementById('levels-grid').innerHTML=LEVELS.map((l,i)=>{
-    const done=st.completed.includes(l.id);
-    const unlocked=i===0||st.completed.includes(LEVELS[i-1].id);
-    const cls=done?'completed':!unlocked?'locked':i===st.completed.length?'active-level':'';
-    const stat=done?'<span class="level-status done">✓ CLEARED</span>'
-      :!unlocked?'<span class="level-status locked-txt">🔒 LOCKED</span>'
-      :'<span class="level-status current">▶ ENTER</span>';
-    return '<div class="level-card '+cls+'" style="--lc:'+l.color+'" onclick="'+(unlocked&&!done?'openPuzzle('+l.id+')':'')+'">'
-      +stat+'<div class="level-num">LEVEL '+l.id+'</div>'
-      +'<div class="level-name">'+l.name+'</div>'
-      +'<div class="level-desc">'+l.desc+'</div>'
-      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;">'
-      +'<span class="level-tag">'+l.tag+'</span>'
-      +'<span style="font-family:\'Share Tech Mono\',monospace;font-size:11px;color:var(--muted)">'+l.pts+' PTS</span></div></div>';
-  }).join('');
-}
-
-function openPuzzle(id){
-  const l=LEVELS.find(x=>x.id===id);if(!l)return;
-  st.currentLevel=id;
-  if(!st.attempts[id])st.attempts[id]=l.maxTries;
-  let inp='';
-  if(l.type==='choice'){
-    inp='<div class="attempts-left" id="att">// '+st.attempts[id]+' attempts remaining</div>'
-      +'<div class="choices">'+l.choices.map(c=>'<button class="choice-btn" onclick="pickChoice(this,\''+c+'\')">'+c+'</button>').join('')+'</div>';
-  }else{
-    inp='<div class="attempts-left" id="att">// '+st.attempts[id]+' attempts remaining</div>'
-      +'<input class="puzzle-input" id="p-input" placeholder="Your answer..." onkeydown="if(event.key===\'Enter\')submitText()">'
-      +'<button class="btn-submit" id="p-btn" onclick="submitText()">SUBMIT ANSWER</button>';
+function renderCartBody(){
+  const body=document.getElementById('cartBody');
+  const foot=document.getElementById('cartFoot');
+  if(!cart.length){
+    body.innerHTML='<div class="empty-cart">🛒<br><br>السلة فاضية!<br>أضف بتات نادرة من المتجر</div>';
+    foot.innerHTML='';return;
   }
-  const card=document.getElementById('puzzle-card');
-  card.style.setProperty('--lc',l.color);
-  card.innerHTML='<div class="puzzle-header"><div class="puzzle-level-badge">LEVEL '+l.id+' — '+l.name+'</div><div class="puzzle-pts">'+l.pts+' PTS</div></div>'
-    +'<div class="puzzle-body"><h2>'+l.tag+'</h2><div class="story">'+l.story+'</div>'
-    +'<div class="puzzle-question">'+l.question+'</div>'+inp+'<div class="feedback-msg" id="fb"></div></div>';
-  showScreen('puzzle');
+  body.innerHTML=cart.map(it=>`
+    <div class="cart-item">
+      <div class="ci-emoji">${it.emoji}</div>
+      <div class="ci-info">
+        <div class="ci-name">${it.name}</div>
+        <div class="ci-price">${it.priceAr} ر.س</div>
+      </div>
+      <button class="ci-remove" onclick="removeFromCart(${it.id})">✕</button>
+    </div>
+  `).join('');
+  const total=cart.reduce((s,i)=>s+i.price,0);
+  foot.innerHTML=`
+    <div class="cart-total-row">
+      <span class="cart-total-label">المجموع</span>
+      <span class="cart-total-val">${total.toLocaleString('ar-SA')} ر.س</span>
+    </div>
+    <button class="apple-pay-btn" onclick="applePayFlow()">
+      <span style="font-size:1.2rem"></span> Pay
+    </button>
+    <div class="or-divider">أو</div>
+    <button class="card-pay-btn" onclick="applePayFlow()">💳 ادفع ببطاقة</button>
+  `;
 }
 
-function pickChoice(btn, val){
-  const l=LEVELS.find(x=>x.id===st.currentLevel);
-  st.attempts[l.id]--;
-  const left=st.attempts[l.id];
+function applePayFlow(){
+  if(!loggedIn){closeAll();setTimeout(()=>{openLogin();showToast('⚠️ سجّل دخولك أول');},250);return;}
+  const total=cart.reduce((s,i)=>s+i.price,0).toLocaleString('ar-SA');
+  document.getElementById('cartBody').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">⏳<br><br>جاري معالجة الدفع...</div>';
+  document.getElementById('cartFoot').innerHTML='';
+  setTimeout(()=>{
+    document.getElementById('cartBody').innerHTML=`
+      <div class="pay-success">
+        <div class="big-emoji">🎉</div>
+        <h3>تم الدفع بنجاح!</h3>
+        <p>دفعت ${total} ر.س<br>راح يوصلك البت على حسابك خلال دقائق 🐾</p>
+      </div>`;
+    document.getElementById('cartFoot').innerHTML=`<button class="login-btn" onclick="clearAfterPay()">رجوع للمتجر</button>`;
+    showToast('🎉 شكراً! تمت العملية بنجاح');
+  },2000);
+}
+function clearAfterPay(){cart=[];updateCount();closeAll();}
 
-  if(val===l.answer){
-    // Correct — lock all buttons and advance
-    document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
-    btn.classList.add('correct');
-    setFb(true,'✓ CORRECT! Advancing...');
-    setTimeout(()=>levelDone(l.id),1300);
-  } else {
-    // Wrong — just mark this button red temporarily, no answer revealed
-    btn.disabled=true;
-    btn.classList.add('wrong');
-    if(left<=0){
-      // Out of attempts — go to failed screen
-      document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
-      setFb(false,'✗ No attempts remaining. Trial failed.');
-      setTimeout(()=>showScreen('failed'),1600);
-    } else {
-      setFb(false,'✗ Incorrect. '+left+' attempt'+(left===1?'':'s')+' remaining. Try again.');
-      setTimeout(()=>{
-        btn.classList.remove('wrong');
-        btn.disabled=false;
-        hideFb();
-        document.getElementById('att').textContent='// '+left+' attempts remaining';
-      },1200);
-    }
-  }
+function openCart(){renderCartBody();document.getElementById('cartDrawer').classList.add('open');document.getElementById('backdrop').classList.add('show');}
+function openSettings(){document.getElementById('settingsDrawer').classList.add('open');document.getElementById('backdrop').classList.add('show');}
+function closeAll(){document.getElementById('cartDrawer').classList.remove('open');document.getElementById('settingsDrawer').classList.remove('open');document.getElementById('backdrop').classList.remove('show');}
+
+function openLogin(){document.getElementById('loginModal').classList.add('show');document.getElementById('modalBackdrop').classList.add('show');}
+function closeLogin(){document.getElementById('loginModal').classList.remove('show');document.getElementById('modalBackdrop').classList.remove('show');}
+
+function doLogin(){
+  const e=document.getElementById('emailInput').value.trim();
+  const p=document.getElementById('passInput').value.trim();
+  if(!e||!p){showToast('⚠️ ادخل البريد وكلمة المرور');return;}
+  loggedIn=true;userName=e.split('@')[0];
+  updateUserTag();closeLogin();showToast('👋 أهلاً '+userName+'!');
+}
+function socialLogin(prov){
+  loggedIn=true;userName=prov+'_user';
+  updateUserTag();closeLogin();showToast('✅ تم الدخول عبر '+prov);
+}
+function updateUserTag(){
+  const t=document.getElementById('userTag');
+  t.innerHTML=`<span class="dot"></span><span>${userName}</span>`;
+  t.onclick=()=>showToast('👤 حسابك: '+userName);
+}
+function switchToSignup(){
+  document.getElementById('authTitle').textContent='حساب جديد ✨';
+  document.getElementById('authSub').textContent='أنشئ حسابك وابدأ التسوق';
+  document.getElementById('loginForm').innerHTML=`
+    <div class="field"><label>الاسم</label><input type="text" id="nameIn" placeholder="اسمك هنا"></div>
+    <div class="field"><label>البريد الإلكتروني</label><input type="email" id="emailIn2" placeholder="you@example.com"></div>
+    <div class="field"><label>كلمة المرور</label><input type="password" id="passIn2" placeholder="••••••••"></div>
+    <button class="login-btn" onclick="doSignup()">إنشاء الحساب</button>
+    <div class="signup-link">عندك حساب؟ <span onclick="resetLoginForm()">سجّل دخول</span></div>
+  `;
+}
+function doSignup(){
+  const n=document.getElementById('nameIn')?.value.trim();
+  if(!n){showToast('⚠️ ادخل اسمك');return;}
+  loggedIn=true;userName=n;
+  updateUserTag();closeLogin();showToast('🎉 أهلاً '+n+'! حسابك جاهز');
+}
+function resetLoginForm(){
+  document.getElementById('authTitle').textContent='أهلاً بك 👋';
+  document.getElementById('authSub').textContent='سجّل دخولك للوصول لسلتك وطلباتك';
+  document.getElementById('loginForm').innerHTML=`
+    <div class="field"><label>البريد الإلكتروني</label><input type="email" id="emailInput" placeholder="you@example.com"></div>
+    <div class="field"><label>كلمة المرور</label><input type="password" id="passInput" placeholder="••••••••"></div>
+    <button class="login-btn" onclick="doLogin()">تسجيل الدخول</button>
+    <div class="login-divider">أو</div>
+    <div class="social-row">
+      <button class="social-btn" onclick="socialLogin('Google')">🌐 Google</button>
+      <button class="social-btn" onclick="socialLogin('Apple')"> Apple</button>
+    </div>
+    <div class="signup-link">ما عندك حساب؟ <span onclick="switchToSignup()">أنشئ حساب</span></div>
+  `;
 }
 
-function submitText(){
-  const l=LEVELS.find(x=>x.id===st.currentLevel);
-  const inp=document.getElementById('p-input');
-  const val=inp.value.trim().toLowerCase();if(!val)return;
-  if(val===l.answer.toLowerCase()){
-    inp.disabled=true;document.getElementById('p-btn').disabled=true;
-    setFb(true,'✓ CORRECT! Well done.');
-    setTimeout(()=>levelDone(l.id),1300);
-  }else{
-    st.attempts[l.id]--;const left=st.attempts[l.id];
-    if(left<=0){
-      inp.disabled=true;document.getElementById('p-btn').disabled=true;
-      setFb(false,'✗ No attempts remaining. Trial failed.');
-      document.getElementById('att').textContent='// 0 attempts remaining';
-      setTimeout(()=>showScreen('failed'),1600);
-    }else{
-      setFb(false,'✗ Incorrect. '+left+' attempt'+(left===1?'':'s')+' remaining.');
-      document.getElementById('att').textContent='// '+left+' attempts remaining';
-      inp.value='';inp.focus();
-    }
-  }
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-function setFb(ok,msg){const el=document.getElementById('fb');el.textContent=msg;el.className='feedback-msg '+(ok?'correct':'wrong');el.style.display='block';}
-function hideFb(){const el=document.getElementById('fb');if(el)el.style.display='none';}
+const msgs=['بتات نادرة حصرية','بت الفينيكس الأسطوري وصل','أقل من ١٠ نسخ متبقية','شحن فوري بعد الدفع','بتات جديدة كل أسبوع','الـ Gyatt Pet الأخير تقريباً'];
+document.getElementById('mq').innerHTML=[...msgs,...msgs].map(m=>`<span>${m}</span>`).join('');
 
-async function levelDone(id){
-  if(!st.completed.includes(id))st.completed.push(id);
-  if(st.completed.length>=LEVELS.length){await claimKey();return;}
-  renderProgress();renderLevels();showScreen('challenge');
-}
-
-async function claimKey(){
-  const alreadyClaimed = await checkIfClaimed();
-  if(alreadyClaimed) return;
-  try {
-    const res = await fetch(BIN_URL, {
-      method: 'PUT',
-      headers: HEADERS,
-      body: JSON.stringify({ claimed: true, winner: st.user, ts: new Date().toUTCString() })
-    });
-    const json = await res.json();
-    console.log('Bin save result:', json);
-  } catch(e) { console.error('Save winner failed', e); }
-  launchConfetti();
-  showScreen('winner');
-}
-
-function copyKey(){
-  navigator.clipboard.writeText(PRIZE_KEY).then(()=>{
-    const b=document.querySelector('.key-copy-btn');
-    b.textContent='[ COPIED ✓ ]';setTimeout(()=>b.textContent='[ COPY KEY ]',2000);
-  });
-}
-
-function launchConfetti(){
-  const c=document.getElementById('confetti-canvas');const ctx=c.getContext('2d');
-  c.width=innerWidth;c.height=innerHeight;
-  const cols=['#f0c040','#00e5ff','#ff3b3b','#00ff88','#a78bfa','#fff'];
-  const pts=Array.from({length:200},()=>({x:Math.random()*c.width,y:Math.random()*-c.height,w:7+Math.random()*8,h:4+Math.random()*4,rot:Math.random()*360,dr:(Math.random()-.5)*7,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,col:cols[Math.floor(Math.random()*cols.length)],a:1}));
-  let f=0;
-  (function draw(){ctx.clearRect(0,0,c.width,c.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.dr;if(f>160)p.a=Math.max(0,p.a-.008);ctx.save();ctx.globalAlpha=p.a;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.col;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});f++;if(f<350)requestAnimationFrame(draw);else ctx.clearRect(0,0,c.width,c.height);})();
-}
+renderShop();
 </script>
 </body>
 </html>
